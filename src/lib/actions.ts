@@ -1,0 +1,222 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { getDatabase } from "@/lib/db";
+import { profiles } from "@/lib/schema";
+import { uploadImageToGitHub } from "@/lib/github";
+import { generateSlug, validateIndianPhone } from "@/lib/utils";
+import { eq, desc } from "drizzle-orm";
+
+export async function submitRegistration(formData: FormData) {
+  try {
+    const fullName = formData.get("fullName") as string;
+    const dob = (formData.get("dob") as string) || "";
+    const tob = (formData.get("tob") as string) || "";
+    const pob = (formData.get("pob") as string) || "";
+    const height = (formData.get("height") as string) || "";
+    const ageStr = formData.get("age") as string;
+    const gotra = (formData.get("gotra") as string) || "";
+
+    const gaon = formData.get("gaon") as string;
+    const area = formData.get("area") as string;
+    const domicile = (formData.get("domicile") as string) || "";
+    const residentAddress = (formData.get("residentAddress") as string) || "";
+
+    const education = (formData.get("education") as string) || "";
+    const occupation = (formData.get("occupation") as string) || "";
+
+    const fatherName = (formData.get("fatherName") as string) || "";
+    const fatherOccupation = (formData.get("fatherOccupation") as string) || "";
+    const motherName = (formData.get("motherName") as string) || "";
+    const motherOccupation = (formData.get("motherOccupation") as string) || "";
+    const siblings = (formData.get("siblings") as string) || "";
+    const grandFather = (formData.get("grandFather") as string) || "";
+    const grandMother = (formData.get("grandMother") as string) || "";
+
+    const phoneNumber = formData.get("phoneNumber") as string;
+    const fatherContact = (formData.get("fatherContact") as string) || "";
+    const motherContact = (formData.get("motherContact") as string) || "";
+    const photoFile = formData.get("photo") as File;
+
+    if (!fullName || !gaon || !area || !ageStr || !phoneNumber) {
+      return { success: false, error: "Please fill out all mandatory fields (Name, Gaon, Area, Age, Phone)." };
+    }
+
+    const age = parseInt(ageStr, 10);
+    if (isNaN(age) || age < 18 || age > 100) {
+      return { success: false, error: "Please provide a valid age between 18 and 100." };
+    }
+
+    if (!validateIndianPhone(phoneNumber)) {
+      return { success: false, error: "Please provide a valid 10-digit primary phone number." };
+    }
+
+    if (!photoFile || photoFile.size === 0) {
+      return { success: false, error: "A passport-size profile photograph is required." };
+    }
+
+    if (photoFile.size > 5 * 1024 * 1024) {
+      return { success: false, error: "Photo file size cannot exceed 5MB." };
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    if (!allowedTypes.includes(photoFile.type)) {
+      return { success: false, error: "Only JPG, PNG or WebP images are supported." };
+    }
+
+    // Convert file to buffer and upload to GitHub
+    const arrayBuffer = await photoFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const uploadResult = await uploadImageToGitHub(buffer, photoFile.name);
+
+    const slug = generateSlug(fullName);
+
+    const profileData = {
+      fullName,
+      dob,
+      tob,
+      pob,
+      height,
+      age,
+      gotra,
+      gaon,
+      area,
+      domicile,
+      residentAddress,
+      education,
+      occupation,
+      fatherName,
+      fatherOccupation,
+      motherName,
+      motherOccupation,
+      siblings,
+      grandFather,
+      grandMother,
+      phoneNumber,
+      fatherContact,
+      motherContact,
+      photoUrl: uploadResult.url,
+      profileSlug: slug,
+      status: "pending" as const,
+    };
+
+    const { isMock, mockDb, db } = getDatabase();
+
+    if (isMock || !db) {
+      await mockDb.insert(profileData);
+    } else {
+      await db.insert(profiles).values(profileData);
+    }
+
+    revalidatePath("/admin/dashboard");
+    return {
+      success: true,
+      slug,
+      message: "Form successfully submitted. It will be verified by our administrative desk before publishing.",
+    };
+  } catch (err: any) {
+    console.error("submitRegistration error:", err);
+    return {
+      success: false,
+      error: err?.message || "Internal server error occurred while processing registration.",
+    };
+  }
+}
+
+export async function adminLogin(password: string) {
+  const secret = process.env.ADMIN_SECRET_PASSWORD || "admin_secret_samaj_2026";
+  if (password === secret) {
+    const cookieStore = await cookies();
+    cookieStore.set("admin_auth", "authenticated_session", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+    return { success: true };
+  }
+  return { success: false, error: "Incorrect admin password." };
+}
+
+export async function adminLogout() {
+  const cookieStore = await cookies();
+  cookieStore.delete("admin_auth");
+  return { success: true };
+}
+
+export async function updateProfileStatus(id: number, status: "approved" | "rejected" | "pending") {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      await mockDb.updateStatus(id, status);
+    } else {
+      await db.update(profiles).set({ status }).where(eq(profiles.id, id));
+    }
+
+    revalidatePath("/");
+    revalidatePath("/directory");
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to update profile status." };
+  }
+}
+
+export async function getDirectoryProfiles() {
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      return await mockDb.getApproved();
+    }
+    const result = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.status, "approved"))
+      .orderBy(desc(profiles.createdAt));
+    return result;
+  } catch (error) {
+    console.error("getDirectoryProfiles error:", error);
+    return [];
+  }
+}
+
+export async function getProfileBySlug(slug: string) {
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      return await mockDb.getBySlug(slug);
+    }
+    const result = await db.select().from(profiles).where(eq(profiles.profileSlug, slug)).limit(1);
+    return result[0] || null;
+  } catch (error) {
+    console.error("getProfileBySlug error:", error);
+    return null;
+  }
+}
+
+export async function getAllProfilesForAdmin() {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return null;
+  }
+
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      return await mockDb.getAll();
+    }
+    const result = await db.select().from(profiles).orderBy(desc(profiles.createdAt));
+    return result;
+  } catch (error) {
+    console.error("getAllProfilesForAdmin error:", error);
+    return [];
+  }
+}

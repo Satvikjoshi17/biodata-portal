@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --bg-canvas: #faf8f5;
+    --bg-card: #ffffff;
+    --border-subtle: #e7e5e4;
+    --border-strong: #d6d3d1;
+
+    --text-primary: #1c1917;
+    --text-secondary: #57534e;
+    --text-tertiary: #a8a29e;
+
+    --brand-terracotta: #c2410c;
+    --brand-terracotta-dark: #9a3412;
+    --brand-forest: #166534;
+    --brand-navy: #0f172a;
+  }
+}
+
+body {
+  background-color: #faf8f5;
+  color: #1c1917;
+  font-family: var(--font-sans);
+  background-image: radial-gradient(rgba(28, 25, 23, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.font-serif-heading {
+  font-family: var(--font-serif);
+}
+
+.font-mono-tag {
+  font-family: var(--font-mono);
+}
+
+/* Subtle micro-interactions */
+.card-hover {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(28, 25, 23, 0.08), 0 8px 10px -6px rgba(28, 25, 23, 0.04);
+}
+
+button, input, select, textarea {
+  touch-action: manipulation;
+}

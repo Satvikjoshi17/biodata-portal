@@ -1,0 +1,38 @@
+"use client";
+
+import { RegisterForm } from "@/components/RegisterForm";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+
+export default function RegisterPage() {
+  const { t } = useLanguage();
+
+  return (
+    <div className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-6">
+      {/* Header */}
+      <div>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534e] hover:text-[#c2410c] transition mb-4"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> {t.form.backBtn}
+        </Link>
+
+        <div className="bg-white border border-[#e7e5e4] rounded-xl p-6 sm:p-8 shadow-xs">
+          <span className="text-[10px] font-mono-tag font-semibold uppercase tracking-wider text-[#c2410c] bg-[#faf8f5] px-2.5 py-1 rounded border border-[#e7e5e4] inline-block mb-3">
+            {t.form.badge}
+          </span>
+          <h1 className="font-serif-heading text-2xl sm:text-3xl font-black text-[#1c1917] tracking-tight">
+            {t.form.heading}
+          </h1>
+          <p className="mt-2 text-xs sm:text-sm text-[#57534e] leading-relaxed">
+            {t.form.subheading}
+          </p>
+        </div>
+      </div>
+
+      <RegisterForm />
+    </div>
+  );
+}
