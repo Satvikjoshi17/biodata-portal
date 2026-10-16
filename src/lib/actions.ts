@@ -3,10 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { getDatabase } from "@/lib/db";
-import { profiles } from "@/lib/schema";
+import { profiles, advertisements, type Advertisement, type AdPlacement } from "@/lib/schema";
 import { uploadImageToGitHub } from "@/lib/github";
 import { generateSlug, validateIndianPhone } from "@/lib/utils";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export async function submitRegistration(formData: FormData) {
   try {
@@ -219,5 +219,164 @@ export async function getAllProfilesForAdmin() {
   } catch (error) {
     console.error("getAllProfilesForAdmin error:", error);
     return [];
+  }
+}
+
+// ----------------------------------------------------
+// Advertisement Operations
+// ----------------------------------------------------
+
+export async function getActiveAds(placement?: string): Promise<Advertisement[]> {
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      return await mockDb.getActiveAds(placement);
+    }
+    const conditions = [eq(advertisements.active, "true")];
+    if (placement) {
+      conditions.push(eq(advertisements.placement, placement));
+    }
+    return await db
+      .select()
+      .from(advertisements)
+      .where(and(...conditions))
+      .orderBy(advertisements.displayOrder);
+  } catch (err) {
+    console.error("getActiveAds error:", err);
+    return [];
+  }
+}
+
+export async function getAllAdsForAdmin(): Promise<Advertisement[] | null> {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return null;
+  }
+
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      return await mockDb.getAllAds();
+    }
+    return await db.select().from(advertisements).orderBy(advertisements.displayOrder);
+  } catch (err) {
+    console.error("getAllAdsForAdmin error:", err);
+    return [];
+  }
+}
+
+export async function createAdvertisement(formData: FormData) {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  try {
+    const title = (formData.get("title") as string)?.trim();
+    const linkUrl = (formData.get("linkUrl") as string)?.trim() || null;
+    const placement = ((formData.get("placement") as string)?.trim() as AdPlacement) || "home_featured";
+    const imageUrlInput = (formData.get("imageUrl") as string)?.trim();
+    const photoFile = formData.get("photo") as File | null;
+    const displayOrderStr = (formData.get("displayOrder") as string) || "0";
+    const displayOrder = parseInt(displayOrderStr, 10) || 0;
+
+    if (!title) {
+      return { success: false, error: "Ad title / Sponsor name is required." };
+    }
+
+    let finalImageUrl = imageUrlInput || "";
+
+    if (photoFile && photoFile.size > 0) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+      if (!allowedTypes.includes(photoFile.type)) {
+        return { success: false, error: "Only JPG, PNG or WebP images are supported." };
+      }
+      const arrayBuffer = await photoFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const uploadResult = await uploadImageToGitHub(buffer, photoFile.name);
+      finalImageUrl = uploadResult.url;
+    }
+
+    if (!finalImageUrl) {
+      return { success: false, error: "Please upload an advertisement image or provide an image link." };
+    }
+
+    const adData = {
+      title,
+      imageUrl: finalImageUrl,
+      linkUrl,
+      placement,
+      active: "true" as const,
+      displayOrder,
+    };
+
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      await mockDb.insertAd(adData);
+    } else {
+      await db.insert(advertisements).values(adData);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/directory");
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: any) {
+    console.error("createAdvertisement error:", err);
+    return { success: false, error: err?.message || "Failed to create advertisement." };
+  }
+}
+
+export async function toggleAdvertisementStatus(id: number) {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      await mockDb.toggleAdStatus(id);
+    } else {
+      const current = await db.select().from(advertisements).where(eq(advertisements.id, id)).limit(1);
+      if (current[0]) {
+        const nextActive = current[0].active === "true" ? "false" : "true";
+        await db.update(advertisements).set({ active: nextActive }).where(eq(advertisements.id, id));
+      }
+    }
+
+    revalidatePath("/");
+    revalidatePath("/directory");
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to toggle status." };
+  }
+}
+
+export async function deleteAdvertisement(id: number) {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  try {
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      await mockDb.deleteAd(id);
+    } else {
+      await db.delete(advertisements).where(eq(advertisements.id, id));
+    }
+
+    revalidatePath("/");
+    revalidatePath("/directory");
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to delete advertisement." };
   }
 }

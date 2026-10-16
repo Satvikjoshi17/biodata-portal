@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getAllProfilesForAdmin } from "@/lib/actions";
+import { getAllProfilesForAdmin, getAllAdsForAdmin } from "@/lib/actions";
 import { AdminDashboardClient } from "@/components/AdminDashboardClient";
 
 export const metadata = {
@@ -7,7 +7,10 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  const profiles = await getAllProfilesForAdmin();
+  const [profiles, ads] = await Promise.all([
+    getAllProfilesForAdmin(),
+    getAllAdsForAdmin(),
+  ]);
 
   if (profiles === null) {
     redirect("/admin/login");
@@ -15,7 +18,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="py-6 sm:py-12 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <AdminDashboardClient initialProfiles={profiles} />
+      <AdminDashboardClient initialProfiles={profiles} initialAds={ads || []} />
     </div>
   );
 }

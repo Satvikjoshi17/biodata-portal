@@ -4,7 +4,8 @@ import Link from "next/link";
 import { formatIndianPhone } from "@/lib/utils";
 import { ShareProfileActions } from "@/components/ShareProfileActions";
 import { useLanguage } from "@/lib/LanguageContext";
-import type { Profile } from "@/lib/schema";
+import { AdBanner } from "@/components/AdBanner";
+import type { Profile, Advertisement } from "@/lib/schema";
 import {
   MapPin,
   Calendar,
@@ -17,9 +18,10 @@ import {
 
 interface ProfileClientViewProps {
   profile: Profile;
+  ads?: Advertisement[];
 }
 
-export function ProfileClientView({ profile }: ProfileClientViewProps) {
+export function ProfileClientView({ profile, ads = [] }: ProfileClientViewProps) {
   const { t } = useLanguage();
 
   return (
@@ -317,6 +319,8 @@ export function ProfileClientView({ profile }: ProfileClientViewProps) {
         {/* QR Code and Actions Column */}
         <div className="space-y-6">
           <ShareProfileActions slug={profile.profileSlug} fullName={profile.fullName} />
+          {/* Profile Sidebar Advertisement */}
+          <AdBanner placement="profile_sidebar" ads={ads} />
         </div>
       </div>
     </div>

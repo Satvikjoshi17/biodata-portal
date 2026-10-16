@@ -2,7 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
 
-// Fallback in-memory storage populated with complete detailed records including Falguni Paliwal
+// Fallback in-memory storage populated with complete detailed records including Falguni Paliwal and default ads
 class MockDB {
   private static profilesList: schema.Profile[] = [
     {
@@ -97,6 +97,60 @@ class MockDB {
     }
   ];
 
+  private static adsList: schema.Advertisement[] = [
+    {
+      id: 1,
+      title: "श्री पालीवाल ज्वेलर्स - शुद्ध स्वर्ण आभूषण एवं वैवाहिक संग्रह",
+      imageUrl: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=1200",
+      linkUrl: "https://wa.me/919424073243?text=Namaste%20Paliwal%20Jewellers",
+      placement: "top_banner",
+      active: "true",
+      displayOrder: 1,
+      createdAt: new Date("2026-03-01T10:00:00Z"),
+    },
+    {
+      id: 2,
+      title: "पालीवाल हेरिटेज रिसॉर्ट - मांगलिक व वैवाहिक आयोजनों का उत्कृष्ट स्थल",
+      imageUrl: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=1200",
+      linkUrl: "https://wa.me/919424073243?text=Resort%20Booking%20Inquiry",
+      placement: "home_featured",
+      active: "true",
+      displayOrder: 1,
+      createdAt: new Date("2026-03-02T10:00:00Z"),
+    },
+    {
+      id: 3,
+      title: "श्री पालीवाल कैटरर्स - शुद्ध शाकाहारी स्वादिष्ट शाही शादी व्यवस्था",
+      imageUrl: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&q=80&w=800",
+      linkUrl: "tel:9424073243",
+      placement: "directory_infeed",
+      active: "true",
+      displayOrder: 1,
+      createdAt: new Date("2026-03-03T10:00:00Z"),
+    },
+    {
+      id: 4,
+      title: "श्री पालीवाल परिधान - पारंपरिक व आधुनिक वेडिंग शेरवानी एवं साड़ियाँ",
+      imageUrl: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=800",
+      linkUrl: "https://wa.me/919424073243?text=Wedding%20Attire%20Inquiry",
+      placement: "profile_sidebar",
+      active: "true",
+      displayOrder: 1,
+      createdAt: new Date("2026-03-04T10:00:00Z"),
+    },
+    {
+      id: 5,
+      title: "अखिल भारतीय पालीवाल परिचय सम्मेलन एवं वैवाहिक पत्रिका 2026",
+      imageUrl: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=800",
+      linkUrl: "https://wa.me/919424073243?text=Sammelan%20Poster%20Inquiry",
+      placement: "portrait_flyer",
+      active: "true",
+      displayOrder: 1,
+      createdAt: new Date("2026-03-05T10:00:00Z"),
+    }
+  ];
+
+  // Profiles
   static async getAll() {
     return [...this.profilesList];
   }
@@ -149,6 +203,51 @@ class MockDB {
     if (profile) {
       profile.status = status;
       return [profile];
+    }
+    return [];
+  }
+
+  // Advertisements
+  static async getAllAds() {
+    return [...this.adsList].sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
+  static async getActiveAds(placement?: string) {
+    return this.adsList
+      .filter((ad) => ad.active === "true")
+      .filter((ad) => !placement || ad.placement === placement)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
+  static async insertAd(item: schema.NewAdvertisement) {
+    const newAd: schema.Advertisement = {
+      id: this.adsList.length > 0 ? Math.max(...this.adsList.map((a) => a.id)) + 1 : 1,
+      title: item.title,
+      imageUrl: item.imageUrl,
+      linkUrl: item.linkUrl || null,
+      placement: item.placement,
+      active: item.active || "true",
+      displayOrder: item.displayOrder ?? 0,
+      createdAt: new Date(),
+    };
+    this.adsList.push(newAd);
+    return [newAd];
+  }
+
+  static async toggleAdStatus(id: number) {
+    const ad = this.adsList.find((a) => a.id === id);
+    if (ad) {
+      ad.active = ad.active === "true" ? "false" : "true";
+      return [ad];
+    }
+    return [];
+  }
+
+  static async deleteAd(id: number) {
+    const index = this.adsList.findIndex((a) => a.id === id);
+    if (index !== -1) {
+      const removed = this.adsList.splice(index, 1);
+      return removed;
     }
     return [];
   }

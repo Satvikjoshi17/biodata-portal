@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { Search, MapPin, Building2, QrCode, UserPlus, Filter, X, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
-import type { Profile } from "@/lib/schema";
+import { AdBanner } from "@/components/AdBanner";
+import type { Profile, Advertisement } from "@/lib/schema";
 
 interface DirectoryClientProps {
   initialProfiles: Profile[];
+  ads?: Advertisement[];
 }
 
-export function DirectoryClient({ initialProfiles }: DirectoryClientProps) {
+export function DirectoryClient({ initialProfiles, ads = [] }: DirectoryClientProps) {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGaon, setSelectedGaon] = useState("all");
@@ -58,6 +60,8 @@ export function DirectoryClient({ initialProfiles }: DirectoryClientProps) {
     setSelectedArea("all");
     setSortBy("newest");
   };
+
+  const hasInfeedAd = ads.some((a) => a.placement === "directory_infeed" && a.active === "true");
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -188,81 +192,90 @@ export function DirectoryClient({ initialProfiles }: DirectoryClientProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-          {filteredProfiles.map((profile) => (
-            <div
-              key={profile.id}
-              className="bg-white rounded-xl border border-[#e7e5e4] card-hover flex flex-col overflow-hidden"
-            >
-              {/* Photo Area */}
-              <div className="relative h-64 sm:h-60 bg-[#f5f5f4] overflow-hidden border-b border-[#e7e5e4]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={profile.photoUrl}
-                  alt={profile.fullName}
-                  className="w-full h-full object-cover"
-                />
+          {filteredProfiles.map((profile, index) => (
+            <React.Fragment key={profile.id}>
+              {/* Insert in-feed sponsor card after 2nd candidate */}
+              {index === 2 && hasInfeedAd && (
+                <AdBanner placement="directory_infeed" ads={ads} />
+              )}
 
-                {/* Verified Official Badge */}
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs text-[#166534] text-[10px] font-bold px-2.5 py-1 rounded-md border border-emerald-200 shadow-xs flex items-center gap-1 font-mono-tag">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
-                  <span>{t.directory.verifiedBadge}</span>
-                </div>
+              <div className="bg-white rounded-xl border border-[#e7e5e4] card-hover flex flex-col overflow-hidden">
+                {/* Photo Area */}
+                <div className="relative h-64 sm:h-60 bg-[#f5f5f4] overflow-hidden border-b border-[#e7e5e4]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={profile.photoUrl}
+                    alt={profile.fullName}
+                    className="w-full h-full object-cover"
+                  />
 
-                {/* Age Badge */}
-                <div className="absolute bottom-3 right-3 bg-[#1c1917]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded font-mono-tag">
-                  {profile.age} {t.directory.yrs}
-                </div>
-              </div>
-
-              {/* Information Body */}
-              <div className="p-4 sm:p-4.5 flex-1 flex flex-col justify-between space-y-4">
-                <div>
-                  <h3 className="font-serif-heading text-base font-bold text-[#1c1917] truncate">
-                    {profile.fullName}
-                  </h3>
-
-                  {/* Village and City badges */}
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-[#faf8f5] text-[#57534e] px-2.5 py-0.5 rounded border border-[#e7e5e4] max-w-full">
-                      <MapPin className="w-3 h-3 text-[#c2410c] flex-shrink-0" />
-                      <span className="truncate">{profile.gaon}</span>
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-[#f5f5f4] text-[#57534e] px-2.5 py-0.5 rounded border border-[#e7e5e4] max-w-full">
-                      <Building2 className="w-3 h-3 text-[#78716c] flex-shrink-0" />
-                      <span className="truncate">{profile.area}</span>
-                    </span>
+                  {/* Verified Official Badge */}
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs text-[#166534] text-[10px] font-bold px-2.5 py-1 rounded-md border border-emerald-200 shadow-xs flex items-center gap-1 font-mono-tag">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                    <span>{t.directory.verifiedBadge}</span>
                   </div>
 
-                  {/* Occupation & Education */}
-                  <div className="mt-3 pt-3 border-t border-[#f5f5f4] space-y-1.5 text-xs text-[#57534e]">
-                    {profile.occupation && (
-                      <p className="line-clamp-1 break-words">
-                        <span className="text-[#a8a29e] font-medium">{t.directory.work}:</span>{" "}
-                        <strong className="text-[#1c1917] font-semibold">{profile.occupation}</strong>
-                      </p>
-                    )}
-                    {profile.education && (
-                      <p className="line-clamp-1 break-words">
-                        <span className="text-[#a8a29e] font-medium">{t.directory.edu}:</span>{" "}
-                        <span className="text-[#44403c]">{profile.education}</span>
-                      </p>
-                    )}
+                  {/* Age Badge */}
+                  <div className="absolute bottom-3 right-3 bg-[#1c1917]/85 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded font-mono-tag">
+                    {profile.age} {t.directory.yrs}
                   </div>
                 </div>
 
-                {/* Button */}
-                <div className="pt-2">
-                  <Link
-                    href={`/profile/${profile.profileSlug}`}
-                    className="w-full min-h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-lg bg-[#1c1917] hover:bg-[#c2410c] text-white text-xs font-semibold transition shadow-xs"
-                  >
-                    <QrCode className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>{t.directory.viewBiodata}</span>
-                  </Link>
+                {/* Information Body */}
+                <div className="p-4 sm:p-4.5 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <h3 className="font-serif-heading text-base font-bold text-[#1c1917] truncate">
+                      {profile.fullName}
+                    </h3>
+
+                    {/* Village and City badges */}
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-[#faf8f5] text-[#57534e] px-2.5 py-0.5 rounded border border-[#e7e5e4] max-w-full">
+                        <MapPin className="w-3 h-3 text-[#c2410c] flex-shrink-0" />
+                        <span className="truncate">{profile.gaon}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-[#f5f5f4] text-[#57534e] px-2.5 py-0.5 rounded border border-[#e7e5e4] max-w-full">
+                        <Building2 className="w-3 h-3 text-[#78716c] flex-shrink-0" />
+                        <span className="truncate">{profile.area}</span>
+                      </span>
+                    </div>
+
+                    {/* Occupation & Education */}
+                    <div className="mt-3 pt-3 border-t border-[#f5f5f4] space-y-1.5 text-xs text-[#57534e]">
+                      {profile.occupation && (
+                        <p className="line-clamp-1 break-words">
+                          <span className="text-[#a8a29e] font-medium">{t.directory.work}:</span>{" "}
+                          <strong className="text-[#1c1917] font-semibold">{profile.occupation}</strong>
+                        </p>
+                      )}
+                      {profile.education && (
+                        <p className="line-clamp-1 break-words">
+                          <span className="text-[#a8a29e] font-medium">{t.directory.edu}:</span>{" "}
+                          <span className="text-[#44403c]">{profile.education}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Button */}
+                  <div className="pt-2">
+                    <Link
+                      href={`/profile/${profile.profileSlug}`}
+                      className="w-full min-h-[42px] inline-flex items-center justify-center gap-2 px-4 rounded-lg bg-[#1c1917] hover:bg-[#c2410c] text-white text-xs font-semibold transition shadow-xs"
+                    >
+                      <QrCode className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{t.directory.viewBiodata}</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
+            </React.Fragment>
           ))}
+
+          {/* If there are fewer than 3 profiles, still display in-feed ad if available */}
+          {filteredProfiles.length < 3 && hasInfeedAd && (
+            <AdBanner placement="directory_infeed" ads={ads} />
+          )}
         </div>
       )}
     </div>

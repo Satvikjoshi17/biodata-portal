@@ -50,5 +50,27 @@ export const profiles = pgTable(
   ]
 );
 
+export const advertisements = pgTable(
+  "advertisements",
+  {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    imageUrl: text("image_url").notNull(),
+    linkUrl: text("link_url"), // e.g. "https://..." or "https://wa.me/..." or "tel:..."
+    placement: text("placement").notNull(), // 'top_banner' | 'home_featured' | 'directory_infeed' | 'profile_sidebar'
+    active: text("active").default("true").notNull(), // 'true' | 'false'
+    displayOrder: integer("display_order").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("ads_placement_idx").on(table.placement),
+    index("ads_active_idx").on(table.active),
+  ]
+);
+
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
+
+export type Advertisement = typeof advertisements.$inferSelect;
+export type NewAdvertisement = typeof advertisements.$inferInsert;
+export type AdPlacement = "top_banner" | "home_featured" | "directory_infeed" | "profile_sidebar" | "portrait_flyer";

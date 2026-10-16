@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProfileBySlug } from "@/lib/actions";
+import { getProfileBySlug, getActiveAds } from "@/lib/actions";
 import { ProfileClientView } from "@/components/ProfileClientView";
 
 interface ProfilePageProps {
@@ -52,11 +52,14 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { slug } = await params;
-  const profile = await getProfileBySlug(slug);
+  const [profile, ads] = await Promise.all([
+    getProfileBySlug(slug),
+    getActiveAds("profile_sidebar"),
+  ]);
 
   if (!profile) {
     notFound();
   }
 
-  return <ProfileClientView profile={profile} />;
+  return <ProfileClientView profile={profile} ads={ads} />;
 }

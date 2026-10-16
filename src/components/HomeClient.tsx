@@ -5,17 +5,22 @@ import Link from "next/link";
 import { UserPlus, ShieldCheck, Search } from "lucide-react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { DirectoryClient } from "@/components/DirectoryClient";
-import type { Profile } from "@/lib/schema";
+import { AdBanner } from "@/components/AdBanner";
+import type { Profile, Advertisement } from "@/lib/schema";
 
 interface HomeClientProps { 
   initialProfiles: Profile[];
+  ads?: Advertisement[];
 }
 
-export default function HomeClient({ initialProfiles }: HomeClientProps) {
+export default function HomeClient({ initialProfiles, ads = [] }: HomeClientProps) {
   const { t } = useLanguage();
 
   return (
-    <div className="py-6 sm:py-12 md:py-14 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 sm:space-y-12">
+    <div className="py-6 sm:py-10 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 sm:space-y-10">
+      {/* 1. Top Leaderboard Ad Banner (If configured) */}
+      <AdBanner placement="top_banner" ads={ads} />
+
       {/* Editorial Hero Header */}
       <div className="bg-white border border-[#e7e5e4] rounded-2xl p-5 sm:p-8 md:p-10 shadow-xs relative overflow-hidden">
         <div className="max-w-3xl">
@@ -79,6 +84,36 @@ export default function HomeClient({ initialProfiles }: HomeClientProps) {
         </div>
       </div>
 
+      {/* 2. Homepage Featured Middle Ad Banner (If configured) */}
+      <AdBanner placement="home_featured" ads={ads} />
+
+      {/* 3. Community Noticeboard / Portrait Posters Showcase (If configured) */}
+      {ads.filter((a) => a.placement === "portrait_flyer" && a.active === "true").length > 0 && (
+        <section className="space-y-3 py-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-[#e7e5e4]">
+            <div>
+              <h3 className="font-serif-heading text-base sm:text-lg font-bold text-[#1c1917] flex items-center gap-2">
+                <span>📜 समाज पत्रिका एवं मुख्य पोस्टर</span>
+                <span className="text-[10px] font-mono-tag bg-[#faf8f5] border border-[#e7e5e4] text-[#c2410c] px-2 py-0.5 rounded-full font-semibold">
+                  COMMUNITY FLYERS
+                </span>
+              </h3>
+              <p className="text-xs text-[#78716c]">
+                समाज सम्मेलन, मांगलिक आयोजन व प्रमुख प्रतिष्ठानों के वर्टिकल पोस्टर (क्लिक करके पूरा देखें)
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {ads
+              .filter((a) => a.placement === "portrait_flyer" && a.active === "true")
+              .map((flyer) => (
+                <AdBanner key={flyer.id} placement="portrait_flyer" ads={[flyer]} />
+              ))}
+          </div>
+        </section>
+      )}
+
       {/* Directory Section */}
       <section id="directory-section" className="space-y-4">
         <div className="flex items-center justify-between">
@@ -92,7 +127,7 @@ export default function HomeClient({ initialProfiles }: HomeClientProps) {
           </div>
         </div>
 
-        <DirectoryClient initialProfiles={initialProfiles} />
+        <DirectoryClient initialProfiles={initialProfiles} ads={ads} />
       </section>
     </div>
   );

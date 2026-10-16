@@ -1,4 +1,4 @@
-import { getDirectoryProfiles } from "@/lib/actions";
+import { getDirectoryProfiles, getActiveAds } from "@/lib/actions";
 import { DirectoryPageClient } from "@/components/DirectoryPageClient";
 
 export const metadata = {
@@ -7,7 +7,10 @@ export const metadata = {
 };
 
 export default async function DirectoryPage() {
-  const profiles = await getDirectoryProfiles();
+  const [profiles, ads] = await Promise.all([
+    getDirectoryProfiles(),
+    getActiveAds(),
+  ]);
 
-  return <DirectoryPageClient initialProfiles={profiles} />;
+  return <DirectoryPageClient initialProfiles={profiles} ads={ads} />;
 }
