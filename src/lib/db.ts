@@ -207,6 +207,15 @@ class MockDB {
     return [];
   }
 
+  static async updateProfile(id: number, data: Partial<schema.Profile>) {
+    const profile = this.profilesList.find((p) => p.id === id);
+    if (profile) {
+      Object.assign(profile, data);
+      return [profile];
+    }
+    return [];
+  }
+
   // Advertisements
   static async getAllAds() {
     return [...this.adsList].sort((a, b) => a.displayOrder - b.displayOrder);
@@ -232,6 +241,15 @@ class MockDB {
     };
     this.adsList.push(newAd);
     return [newAd];
+  }
+
+  static async updateAd(id: number, data: Partial<schema.Advertisement>) {
+    const ad = this.adsList.find((a) => a.id === id);
+    if (ad) {
+      Object.assign(ad, data);
+      return [ad];
+    }
+    return [];
   }
 
   static async toggleAdStatus(id: number) {

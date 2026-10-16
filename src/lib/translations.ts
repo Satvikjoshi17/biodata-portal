@@ -69,11 +69,30 @@ export interface TranslationDictionary {
     colEduWork: string;
     colActions: string;
     inspectBtn: string;
+    editBtn: string;
     approveBtn: string;
     rejectBtn: string;
     modalTitle: string;
     modalApprove: string;
     modalReject: string;
+    adsTab: string;
+    colAddedAt: string;
+    saveChanges: string;
+    saving: string;
+    cancel: string;
+    editProfileTitle: string;
+    editAdTitle: string;
+    createAdBtn: string;
+    adActive: string;
+    adInactive: string;
+    deactivateBtn: string;
+    activateBtn: string;
+    deleteBtn: string;
+    noTargetLink: string;
+    viewPoster: string;
+    uploadPhoto: string;
+    orEnterUrl: string;
+    publishAd: string;
   };
   form: {
     heading: string;
@@ -241,11 +260,30 @@ export const translations: Record<Language, TranslationDictionary> = {
       colEduWork: "Education / Work",
       colActions: "Actions",
       inspectBtn: "Inspect Details",
+      editBtn: "Edit",
       approveBtn: "Approve",
       rejectBtn: "Reject",
       modalTitle: "Application Inspection",
       modalApprove: "Approve Biodata",
       modalReject: "Reject",
+      adsTab: "📢 Advertisements",
+      colAddedAt: "Added / Timeline",
+      saveChanges: "Save Changes",
+      saving: "Saving...",
+      cancel: "Cancel",
+      editProfileTitle: "Edit Candidate Profile",
+      editAdTitle: "Edit Advertisement",
+      createAdBtn: "Create New Ad",
+      adActive: "ACTIVE",
+      adInactive: "INACTIVE",
+      deactivateBtn: "Deactivate",
+      activateBtn: "Activate",
+      deleteBtn: "Delete",
+      noTargetLink: "No target link configured",
+      viewPoster: "View Poster",
+      uploadPhoto: "Upload Photo File",
+      orEnterUrl: "Or paste online image URL",
+      publishAd: "Publish Advertisement",
     },
     form: {
       heading: "Community Biodata Registration",
@@ -410,11 +448,30 @@ export const translations: Record<Language, TranslationDictionary> = {
       colEduWork: "शिक्षा / व्यवसाय",
       colActions: "कार्यवाही",
       inspectBtn: "विवरण देखें",
+      editBtn: "संपादित करें",
       approveBtn: "स्वीकृत करें",
       rejectBtn: "अस्वीकार करें",
       modalTitle: "बायोडाटा निरीक्षण",
       modalApprove: "बायोडाटा स्वीकृत करें",
       modalReject: "अस्वीकार करें",
+      adsTab: "📢 विज्ञापन (Ads)",
+      colAddedAt: "जोड़ा गया समय",
+      saveChanges: "परिवर्तन सहेजें",
+      saving: "सहेजा जा रहा है...",
+      cancel: "रद्द करें",
+      editProfileTitle: "बायोडाटा प्रोफ़ाइल संपादित करें",
+      editAdTitle: "विज्ञापन संपादित करें",
+      createAdBtn: "➕ नया विज्ञापन जोड़ें",
+      adActive: "सक्रिय",
+      adInactive: "निष्क्रिय",
+      deactivateBtn: "बंद करें",
+      activateBtn: "सक्रिय करें",
+      deleteBtn: "हटाएं",
+      noTargetLink: "कोई लिंक निर्धारित नहीं",
+      viewPoster: "पोस्टर देखें",
+      uploadPhoto: "फोटो फ़ाइल अपलोड करें",
+      orEnterUrl: "या ऑनलाइन इमेज URL दर्ज करें",
+      publishAd: "विज्ञापन प्रकाशित करें",
     },
     form: {
       heading: "समाज बायोडाटा पंजीकरण प्रपत्र",

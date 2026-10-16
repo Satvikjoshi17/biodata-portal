@@ -5,18 +5,23 @@ import {
   updateProfileStatus,
   adminLogout,
   createAdvertisement,
+  updateAdvertisement,
   toggleAdvertisementStatus,
   deleteAdvertisement,
   getAllAdsForAdmin,
+  updateProfileDetails,
+  getAllProfilesForAdmin,
 } from "@/lib/actions";
 import { toast } from "sonner";
-import { formatIndianPhone } from "@/lib/utils";
+import { formatIndianPhone, formatDateTime } from "@/lib/utils";
 import { useLanguage } from "@/lib/LanguageContext";
 import type { Profile, Advertisement, AdPlacement } from "@/lib/schema";
 import {
   CheckCircle,
   XCircle,
   Eye,
+  Pencil,
+  Calendar,
   LogOut,
   MapPin,
   Building2,
@@ -34,6 +39,11 @@ import {
   ToggleLeft,
   ToggleRight,
   Sparkles,
+  User,
+  GraduationCap,
+  Briefcase,
+  Phone,
+  Home,
 } from "lucide-react";
 
 interface AdminDashboardClientProps {
@@ -50,14 +60,24 @@ export function AdminDashboardClient({
   const [ads, setAds] = useState<Advertisement[]>(initialAds);
   const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected" | "ads">("pending");
   const [previewProfile, setPreviewProfile] = useState<Profile | null>(null);
+  const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
+  const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
 
   // Create Ad modal states
   const [isAddAdModalOpen, setIsAddAdModalOpen] = useState(false);
   const [adPreviewUrl, setAdPreviewUrl] = useState<string | null>(null);
-  const [adPlacement, setAdPlacement] = useState<AdPlacement>("home_featured");
+  const [adPlacement, setAdPlacement] = useState<AdPlacement>("portrait_flyer");
   const adFileRef = useRef<HTMLInputElement>(null);
+
+  // Edit Ad photo state
+  const [editAdPreviewUrl, setEditAdPreviewUrl] = useState<string | null>(null);
+  const editAdFileRef = useRef<HTMLInputElement>(null);
+
+  // Edit Profile photo state
+  const [editProfilePhotoPreview, setEditProfilePhotoPreview] = useState<string | null>(null);
+  const editProfileFileRef = useRef<HTMLInputElement>(null);
 
   const handleStatusChange = (id: number, newStatus: "approved" | "rejected" | "pending") => {
     startTransition(async () => {
@@ -145,6 +165,50 @@ export function AdminDashboardClient({
     });
   };
 
+  const handleEditAdSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    startTransition(async () => {
+      try {
+        const res = await updateAdvertisement(formData);
+        if (res.success) {
+          toast.success("Advertisement updated successfully!");
+          setEditingAd(null);
+          setEditAdPreviewUrl(null);
+          const updated = await getAllAdsForAdmin();
+          if (updated) setAds(updated);
+        } else {
+          toast.error(res.error || "Failed to update ad.");
+        }
+      } catch {
+        toast.error("Network error while updating ad.");
+      }
+    });
+  };
+
+  const handleEditProfileSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    startTransition(async () => {
+      try {
+        const res = await updateProfileDetails(formData);
+        if (res.success) {
+          toast.success("Profile updated successfully!");
+          setEditingProfile(null);
+          setEditProfilePhotoPreview(null);
+          const updated = await getAllProfilesForAdmin();
+          if (updated) setProfiles(updated);
+        } else {
+          toast.error(res.error || "Failed to update profile.");
+        }
+      } catch {
+        toast.error("Network error while updating profile.");
+      }
+    });
+  };
+
   const counts = {
     pending: profiles.filter((p) => p.status === "pending").length,
     approved: profiles.filter((p) => p.status === "approved").length,
@@ -172,6 +236,8 @@ export function AdminDashboardClient({
 
   const getPlacementBadge = (placement: string) => {
     switch (placement) {
+      case "portrait_flyer":
+        return { label: "Portrait Poster / Flyer", color: "bg-rose-100 text-rose-900 border-rose-200" };
       case "top_banner":
         return { label: "Top Header Banner", color: "bg-blue-100 text-blue-900 border-blue-200" };
       case "home_featured":
@@ -180,8 +246,6 @@ export function AdminDashboardClient({
         return { label: "Directory In-Feed Card", color: "bg-amber-100 text-amber-900 border-amber-200" };
       case "profile_sidebar":
         return { label: "Profile Sidebar", color: "bg-emerald-100 text-emerald-900 border-emerald-200" };
-      case "portrait_flyer":
-        return { label: "Portrait Poster / Flyer", color: "bg-rose-100 text-rose-900 border-rose-200" };
       default:
         return { label: placement, color: "bg-slate-100 text-slate-800 border-slate-200" };
     }
@@ -223,10 +287,10 @@ export function AdminDashboardClient({
                 : "text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            <span className="truncate">{t.admin.pendingTab}</span>
+            <span>{t.admin.pendingTab}</span>
             <span
-              className={`px-1.5 py-0.2 rounded text-[10px] font-mono-tag font-bold flex-shrink-0 ${
-                counts.pending > 0 ? "bg-amber-100 text-amber-900" : "bg-[#e7e5e4] text-[#78716c]"
+              className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                activeTab === "pending" ? "bg-amber-100 text-amber-800" : "bg-[#e7e5e4] text-[#57534e]"
               }`}
             >
               {counts.pending}
@@ -241,8 +305,12 @@ export function AdminDashboardClient({
                 : "text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            <span className="truncate">{t.admin.approvedTab}</span>
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-mono-tag font-bold bg-emerald-100 text-emerald-900 flex-shrink-0">
+            <span>{t.admin.approvedTab}</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                activeTab === "approved" ? "bg-emerald-100 text-emerald-800" : "bg-[#e7e5e4] text-[#57534e]"
+              }`}
+            >
               {counts.approved}
             </span>
           </button>
@@ -255,67 +323,99 @@ export function AdminDashboardClient({
                 : "text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            <span className="truncate">{t.admin.rejectedTab}</span>
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-mono-tag font-bold bg-rose-100 text-rose-900 flex-shrink-0">
+            <span>{t.admin.rejectedTab}</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                activeTab === "rejected" ? "bg-rose-100 text-rose-800" : "bg-[#e7e5e4] text-[#57534e]"
+              }`}
+            >
               {counts.rejected}
             </span>
           </button>
 
-          {/* New Advertisements Tab */}
+          {/* Advertisements Management Tab */}
           <button
             onClick={() => setActiveTab("ads")}
-            className={`flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
+            className={`flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === "ads"
-                ? "bg-white text-[#c2410c] shadow-xs"
+                ? "bg-[#c2410c] text-white shadow-xs"
                 : "text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            <Megaphone className="w-3.5 h-3.5 text-[#c2410c]" />
-            <span className="truncate">विज्ञापन (Ads)</span>
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-mono-tag font-bold bg-amber-100 text-amber-900 flex-shrink-0">
-              {counts.ads}
+            <Megaphone className="w-3.5 h-3.5" />
+            <span>{t.admin.adsTab}</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                activeTab === "ads" ? "bg-white/20 text-white" : "bg-[#e7e5e4] text-[#57534e]"
+              }`}
+            >
+              {counts.activeAds}/{counts.ads}
             </span>
           </button>
         </div>
 
-        {/* Search */}
-        <div className="relative w-full sm:w-auto sm:min-w-[240px]">
-          <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            placeholder={activeTab === "ads" ? "Search ads by sponsor or placement..." : t.admin.searchRecords}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 pl-8 pr-3 rounded-lg border border-[#e7e5e4] bg-white text-xs text-[#1c1917] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c]"
-          />
+        {/* Search Input and Action Buttons */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={activeTab === "ads" ? "Search ads by title / layout..." : t.admin.searchRecords}
+              className="w-full h-9 pl-8.5 pr-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-white placeholder-[#a8a29e]"
+            />
+          </div>
+
+          {activeTab === "ads" && (
+            <button
+              onClick={() => {
+                setAdPreviewUrl(null);
+                setIsAddAdModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#c2410c] hover:bg-[#9a3412] text-white text-xs font-semibold transition cursor-pointer shadow-xs flex-shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>{t.admin.createAdBtn}</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* VIEW 1: Advertisements Management Tab */}
+      {/* VIEW 1: Advertisements Management View */}
       {activeTab === "ads" ? (
         <div className="space-y-4">
-          {/* Subheader Toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-[#e7e5e4] shadow-xs">
-            <div className="text-xs text-[#78716c]">
-              <span className="font-bold text-[#1c1917]">{counts.activeAds} Active Ads</span> out of {counts.ads} configured placements.
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-amber-50 to-[#faf8f5] p-3.5 sm:p-4 rounded-xl border border-amber-200/70">
+            <div>
+              <h3 className="font-serif-heading text-sm sm:text-base font-bold text-[#1c1917] flex items-center gap-2">
+                <span>📢 विज्ञापन नियंत्रण केंद्र (Advertisement Engine Controls)</span>
+                <span className="text-[10px] font-mono-tag bg-[#c2410c] text-white px-2 py-0.5 rounded-full">
+                  {t.admin.adActive}: {counts.activeAds} / कुल: {counts.ads}
+                </span>
+              </h3>
+              <p className="text-xs text-[#78716c] mt-0.5">
+                सभी लेआउट्स (पोर्ट्रेट पोस्टर, टॉप बैनर, मुखपृष्ठ फीचर, डायरेक्टरी कार्ड, प्रोफाइल साइडबार) के विज्ञापनों को संपादित व प्रबंधित करें।
+              </p>
             </div>
 
             <button
-              onClick={() => setIsAddAdModalOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#c2410c] hover:bg-[#9a3412] text-white text-xs font-semibold transition cursor-pointer shadow-xs"
+              onClick={() => {
+                setAdPreviewUrl(null);
+                setIsAddAdModalOpen(true);
+              }}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#1c1917] hover:bg-[#c2410c] text-white text-xs font-semibold transition cursor-pointer shadow-xs"
             >
-              <Plus className="w-4 h-4" />
-              <span>नया विज्ञापन जोड़ें (Create Ad)</span>
+              <Plus className="w-3.5 h-3.5" />
+              <span>{t.admin.createAdBtn}</span>
             </button>
           </div>
 
-          {/* Advertisements Grid */}
           {filteredAds.length === 0 ? (
             <div className="bg-white rounded-xl border border-[#e7e5e4] p-12 text-center text-[#78716c]">
               <Megaphone className="w-8 h-8 text-[#a8a29e] mx-auto mb-2" />
               <p className="text-sm font-semibold text-[#1c1917]">No Advertisements Found</p>
               <p className="text-xs text-[#a8a29e] mt-0.5">
-                Click &quot;Create Ad&quot; to configure advertisements for Top Banner, Homepage, Directory, or Profile Sidebar.
+                Click &quot;{t.admin.createAdBtn}&quot; to configure advertisements for any placement.
               </p>
             </div>
           ) : (
@@ -331,14 +431,22 @@ export function AdminDashboardClient({
                   >
                     <div>
                       {/* Image Thumbnail */}
-                      <div className="relative h-44 bg-[#faf8f5] overflow-hidden border-b border-[#e7e5e4]">
+                      <div className="relative h-48 bg-[#faf8f5] overflow-hidden border-b border-[#e7e5e4] flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={ad.imageUrl}
+                          alt=""
+                          aria-hidden
+                          className="absolute inset-0 w-full h-full object-cover blur-sm opacity-25 scale-110"
+                        />
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={ad.imageUrl}
                           alt={ad.title}
-                          className="w-full h-full object-cover"
+                          className="relative z-10 max-h-full max-w-full object-contain"
                         />
-                        <div className="absolute top-2.5 left-2.5">
+
+                        <div className="absolute top-2.5 left-2.5 z-20">
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border ${badge.color} font-mono-tag shadow-xs`}
                           >
@@ -346,13 +454,13 @@ export function AdminDashboardClient({
                           </span>
                         </div>
 
-                        <div className="absolute top-2.5 right-2.5">
+                        <div className="absolute top-2.5 right-2.5 z-20">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono-tag shadow-xs ${
                               isActive ? "bg-emerald-600 text-white" : "bg-slate-700 text-slate-200"
                             }`}
                           >
-                            {isActive ? "ACTIVE" : "INACTIVE"}
+                            {isActive ? t.admin.adActive : t.admin.adInactive}
                           </span>
                         </div>
                       </div>
@@ -362,6 +470,11 @@ export function AdminDashboardClient({
                         <h4 className="font-serif-heading text-sm font-bold text-[#1c1917] line-clamp-2">
                           {ad.title}
                         </h4>
+
+                        <div className="text-[11px] text-[#78716c] font-mono-tag flex items-center gap-1.5">
+                          <Calendar className="w-3 h-3 text-[#c2410c]" />
+                          <span>{t.admin.colAddedAt}: {formatDateTime(ad.createdAt)}</span>
+                        </div>
 
                         {ad.linkUrl ? (
                           <a
@@ -374,7 +487,7 @@ export function AdminDashboardClient({
                             <span className="truncate">{ad.linkUrl}</span>
                           </a>
                         ) : (
-                          <span className="text-[11px] text-[#a8a29e] italic block">No target link configured</span>
+                          <span className="text-[11px] text-[#a8a29e] italic block">{t.admin.noTargetLink}</span>
                         )}
                       </div>
                     </div>
@@ -392,23 +505,37 @@ export function AdminDashboardClient({
                       >
                         {isActive ? (
                           <>
-                            <ToggleLeft className="w-4 h-4" /> Deactivate
+                            <ToggleLeft className="w-4 h-4" /> {t.admin.deactivateBtn}
                           </>
                         ) : (
                           <>
-                            <ToggleRight className="w-4 h-4" /> Activate
+                            <ToggleRight className="w-4 h-4" /> {t.admin.activateBtn}
                           </>
                         )}
                       </button>
 
-                      <button
-                        disabled={isPending}
-                        onClick={() => handleDeleteAd(ad.id)}
-                        className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer disabled:opacity-50"
-                        title="Delete Advertisement"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          disabled={isPending}
+                          onClick={() => {
+                            setEditingAd(ad);
+                            setEditAdPreviewUrl(null);
+                          }}
+                          className="p-1.5 rounded-lg text-[#c2410c] hover:bg-amber-50 border border-transparent hover:border-amber-200 transition cursor-pointer disabled:opacity-50"
+                          title={t.admin.editBtn}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          disabled={isPending}
+                          onClick={() => handleDeleteAd(ad.id)}
+                          className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer disabled:opacity-50"
+                          title={t.admin.deleteBtn}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -455,7 +582,7 @@ export function AdminDashboardClient({
                       </div>
                     </div>
 
-                    <div className="text-xs text-[#78716c] bg-[#faf8f5] p-2.5 rounded-lg border border-[#e7e5e4] space-y-1">
+                    <div className="text-xs text-[#78716c] bg-[#faf8f5] p-2.5 rounded-lg border border-[#e7e5e4] space-y-1.5">
                       <div className="flex items-center justify-between">
                         <span className="text-[#a8a29e]">{t.profile.area}:</span>
                         <span className="font-medium text-[#1c1917] truncate">{p.area}</span>
@@ -463,12 +590,31 @@ export function AdminDashboardClient({
                       {p.occupation && (
                         <div className="flex items-center justify-between">
                           <span className="text-[#a8a29e]">{t.directory.work}:</span>
-                          <span className="font-medium text-[#1c1917] truncate max-w-[180px]">{p.occupation}</span>
+                          <span className="font-medium text-[#1c1917] truncate">{p.occupation}</span>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
                         <span className="text-[#a8a29e]">{t.profile.primaryPhone}:</span>
                         <span className="font-mono-tag font-semibold text-[#1c1917]">{formatIndianPhone(p.phoneNumber)}</span>
+                      </div>
+
+                      {/* Timeline and status section */}
+                      <div className="flex items-center justify-between pt-1.5 border-t border-[#e7e5e4] text-[11px]">
+                        <span className="text-[#78716c] flex items-center gap-1 font-mono-tag">
+                          <Calendar className="w-3 h-3 text-[#c2410c]" />
+                          <span>{formatDateTime(p.createdAt)}</span>
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono-tag ${
+                            p.status === "approved"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : p.status === "rejected"
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {p.status === "approved" ? "स्वीकृत" : p.status === "rejected" ? "अस्वीकृत" : "समीक्षाधीन"}
+                        </span>
                       </div>
                     </div>
 
@@ -476,17 +622,30 @@ export function AdminDashboardClient({
                     <div className="flex items-center gap-2 pt-1">
                       <button
                         onClick={() => setPreviewProfile(p)}
-                        className="flex-1 py-2 px-3 rounded-lg border border-[#d6d3d1] hover:bg-[#faf8f5] text-[#44403c] text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        className="flex-1 py-2 px-2.5 rounded-lg border border-[#d6d3d1] hover:bg-[#faf8f5] text-[#44403c] text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer"
+                        title={t.admin.inspectBtn}
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>{t.admin.inspectBtn}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setEditingProfile(p);
+                          setEditProfilePhotoPreview(null);
+                        }}
+                        className="py-2 px-3 rounded-lg border border-[#c2410c]/30 hover:border-[#c2410c] text-[#c2410c] bg-amber-50/50 text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer"
+                        title={t.admin.editBtn}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>{t.admin.editBtn}</span>
                       </button>
 
                       {p.status !== "approved" && (
                         <button
                           disabled={isPending}
                           onClick={() => handleStatusChange(p.id, "approved")}
-                          className="flex-1 py-2 px-3 rounded-lg bg-[#166534] hover:bg-[#14532d] text-white font-semibold text-xs transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="flex-1 py-2 px-2.5 rounded-lg bg-[#166534] hover:bg-[#14532d] text-white font-semibold text-xs transition shadow-xs flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                         >
                           <CheckCircle className="w-3.5 h-3.5" />
                           <span>{t.admin.approveBtn}</span>
@@ -497,7 +656,7 @@ export function AdminDashboardClient({
                         <button
                           disabled={isPending}
                           onClick={() => handleStatusChange(p.id, "rejected")}
-                          className="py-2 px-3 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs transition shadow-xs flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                          className="py-2 px-2.5 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs transition shadow-xs flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                           title={t.admin.rejectBtn}
                         >
                           <XCircle className="w-3.5 h-3.5" />
@@ -517,6 +676,7 @@ export function AdminDashboardClient({
                       <th className="py-3 px-4">{t.admin.colVillageArea}</th>
                       <th className="py-3 px-4">{t.admin.colAgePhone}</th>
                       <th className="py-3 px-4">{t.admin.colEduWork}</th>
+                      <th className="py-3 px-4">{t.admin.colAddedAt}</th>
                       <th className="py-3 px-4 text-right">{t.admin.colActions}</th>
                     </tr>
                   </thead>
@@ -569,6 +729,31 @@ export function AdminDashboardClient({
                           </div>
                         </td>
 
+                        {/* Timeline & Status Section */}
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-1">
+                            <div className="text-[11px] font-mono-tag font-medium text-[#1c1917] flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-[#c2410c] flex-shrink-0" />
+                              <span>{formatDateTime(p.createdAt)}</span>
+                            </div>
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold font-mono-tag ${
+                                p.status === "approved"
+                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                  : p.status === "rejected"
+                                  ? "bg-rose-100 text-rose-800 border border-rose-200"
+                                  : "bg-amber-100 text-amber-800 border border-amber-200"
+                              }`}
+                            >
+                              {p.status === "approved"
+                                ? "स्वीकृत • APPROVED"
+                                : p.status === "rejected"
+                                ? "अस्वीकृत • REJECTED"
+                                : "प्रतीक्षारत • PENDING"}
+                            </span>
+                          </div>
+                        </td>
+
                         <td className="py-3.5 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
@@ -577,6 +762,17 @@ export function AdminDashboardClient({
                               title={t.admin.inspectBtn}
                             >
                               <Eye className="w-3.5 h-3.5" />
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setEditingProfile(p);
+                                setEditProfilePhotoPreview(null);
+                              }}
+                              className="p-1.5 rounded border border-[#c2410c]/30 hover:border-[#c2410c] text-[#c2410c] bg-amber-50/50 transition cursor-pointer"
+                              title={t.admin.editBtn}
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
                             </button>
 
                             {p.status !== "approved" && (
@@ -629,10 +825,10 @@ export function AdminDashboardClient({
                 <Megaphone className="w-3 h-3" /> ADVERTISEMENT ENGINE
               </div>
               <h2 className="font-serif-heading text-xl font-bold text-[#1c1917]">
-                नया विज्ञापन जोड़ें (Add Advertisement)
+                {t.admin.createAdBtn}
               </h2>
               <p className="text-xs text-[#78716c] mt-0.5">
-                Upload image, pick placement layout, and configure target redirect link.
+                तस्वीर चुनें, लेआउट स्थान तय करें एवं टारगेट रीडायरेक्ट लिंक निर्धारित करें।
               </p>
             </div>
 
@@ -640,7 +836,7 @@ export function AdminDashboardClient({
               {/* Sponsor Title */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Sponsor / Ad Title <span className="text-[#c2410c]">*</span>
+                  Sponsor / Ad Title (विज्ञापन शीर्षक) <span className="text-[#c2410c]">*</span>
                 </label>
                 <input
                   type="text"
@@ -654,7 +850,7 @@ export function AdminDashboardClient({
               {/* Placement Layout Selector */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Display Layout Placement <span className="text-[#c2410c]">*</span>
+                  Display Layout Placement (विज्ञापन स्थान) <span className="text-[#c2410c]">*</span>
                 </label>
                 <select
                   name="placement"
@@ -691,7 +887,7 @@ export function AdminDashboardClient({
               {/* Ad Image: Upload File OR Input URL */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Advertisement Image <span className="text-[#c2410c]">*</span>
+                  Advertisement Image (विज्ञापन तस्वीर) <span className="text-[#c2410c]">*</span>
                 </label>
                 <div className="space-y-2">
                   <input
@@ -700,38 +896,41 @@ export function AdminDashboardClient({
                     ref={adFileRef}
                     accept="image/png, image/jpeg, image/webp"
                     onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) setAdPreviewUrl(URL.createObjectURL(f));
-                    }}
-                    className="w-full text-xs text-[#78716c] file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#faf8f5] file:text-[#c2410c] hover:file:bg-[#e7e5e4] cursor-pointer"
-                  />
-
-                  <div className="flex items-center gap-2 text-[10px] text-[#a8a29e]">
-                    <span>OR paste Image Web URL directly:</span>
-                  </div>
-
-                  <input
-                    type="url"
-                    name="imageUrl"
-                    placeholder="https://images.unsplash.com/... or hosted image URL"
-                    onChange={(e) => {
-                      if (e.target.value.trim().startsWith("http")) {
-                        setAdPreviewUrl(e.target.value.trim());
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = URL.createObjectURL(file);
+                        setAdPreviewUrl(url);
                       }
                     }}
-                    className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60 font-mono"
+                    className="w-full text-xs text-[#57534e] file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#faf8f5] file:text-[#c2410c] hover:file:bg-[#f5f5f4] cursor-pointer"
+                  />
+                  <div className="text-[11px] text-[#78716c] font-medium flex items-center gap-1">
+                    <span>{t.admin.orEnterUrl}:</span>
+                  </div>
+                  <input
+                    type="text"
+                    name="imageUrl"
+                    placeholder="https://images.unsplash.com/photo-..."
+                    onChange={(e) => {
+                      if (e.target.value.startsWith("http")) {
+                        setAdPreviewUrl(e.target.value);
+                      }
+                    }}
+                    className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60"
                   />
                 </div>
 
-                {/* Live Preview */}
+                {/* Preview Box */}
                 {adPreviewUrl && (
-                  <div className="mt-2.5 p-2 rounded-lg border border-[#e7e5e4] bg-[#faf8f5]">
-                    <span className="text-[10px] font-mono-tag text-[#78716c] block mb-1">Live Image Preview:</span>
+                  <div className="mt-3 p-2 border border-[#e7e5e4] rounded-lg bg-[#faf8f5]">
+                    <span className="text-[10px] text-[#78716c] font-mono-tag block mb-1">
+                      Live Image Preview:
+                    </span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={adPreviewUrl}
-                      alt="Ad Preview"
-                      className="w-full h-32 object-cover rounded"
+                      alt="Preview"
+                      className="max-h-36 w-full object-contain rounded border border-[#e7e5e4] bg-white"
                     />
                   </div>
                 )}
@@ -770,7 +969,7 @@ export function AdminDashboardClient({
                   onClick={() => setIsAddAdModalOpen(false)}
                   className="flex-1 py-2.5 rounded-lg border border-[#d6d3d1] text-xs font-semibold text-[#44403c] hover:bg-[#faf8f5] transition cursor-pointer"
                 >
-                  Cancel
+                  {t.admin.cancel}
                 </button>
                 <button
                   type="submit"
@@ -780,12 +979,12 @@ export function AdminDashboardClient({
                   {isPending ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Saving Ad...</span>
+                      <span>{t.admin.saving}</span>
                     </>
                   ) : (
                     <>
                       <Check className="w-3.5 h-3.5" />
-                      <span>Publish Advertisement</span>
+                      <span>{t.admin.publishAd}</span>
                     </>
                   )}
                 </button>
@@ -795,7 +994,666 @@ export function AdminDashboardClient({
         </div>
       )}
 
-      {/* MODAL 2: Quick Inspection Modal for Candidate Profiles */}
+      {/* MODAL 2: Edit Advertisement Modal */}
+      {editingAd && (
+        <div className="fixed inset-0 z-50 bg-[#1c1917]/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl border border-[#e7e5e4] relative max-h-[92vh] overflow-y-auto">
+            <button
+              onClick={() => {
+                setEditingAd(null);
+                setEditAdPreviewUrl(null);
+              }}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-[#a8a29e] hover:text-[#1c1917] hover:bg-[#f5f5f4] cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="mb-5">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#faf8f5] text-[#c2410c] border border-[#e7e5e4] text-xs font-semibold font-mono-tag mb-1.5">
+                <Pencil className="w-3 h-3" /> EDIT ADVERTISEMENT
+              </div>
+              <h2 className="font-serif-heading text-xl font-bold text-[#1c1917]">
+                {t.admin.editAdTitle}
+              </h2>
+              <p className="text-xs text-[#78716c] mt-0.5">
+                विज्ञापन का शीर्षक, लेआउट, लिंक अथवा नई तस्वीर अपडेट करें।
+              </p>
+            </div>
+
+            <form onSubmit={handleEditAdSubmit} className="space-y-4">
+              <input type="hidden" name="id" value={editingAd.id} />
+
+              {/* Title */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                  Sponsor / Ad Title <span className="text-[#c2410c]">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  defaultValue={editingAd.title}
+                  className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60"
+                />
+              </div>
+
+              {/* Placement */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                  Display Layout Placement <span className="text-[#c2410c]">*</span>
+                </label>
+                <select
+                  name="placement"
+                  defaultValue={editingAd.placement}
+                  className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60 cursor-pointer"
+                >
+                  <option value="portrait_flyer">📜 Portrait Poster / Flyer (वर्टिकल पोस्टर / पैम्फलेट - 3:4 / 9:16)</option>
+                  <option value="top_banner">🏷️ Top Header Banner (शीर्ष बैनर - All Pages / Home Header)</option>
+                  <option value="home_featured">🌟 Homepage Middle Feature (मुखपृष्ठ मध्य बैनर)</option>
+                  <option value="directory_infeed">🃏 Directory In-Feed Card (निर्देशिका इन-फीड कार्ड)</option>
+                  <option value="profile_sidebar">📌 Profile Page Sidebar (बायोडाटा साइडबार)</option>
+                </select>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                  Status (सक्रियता)
+                </label>
+                <select
+                  name="active"
+                  defaultValue={editingAd.active}
+                  className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60 cursor-pointer"
+                >
+                  <option value="true">✅ {t.admin.adActive} (साइट पर लाइव दिखेगा)</option>
+                  <option value="false">❌ {t.admin.adInactive} (छिपा हुआ रहेगा)</option>
+                </select>
+              </div>
+
+              {/* Current Image & Replacement */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                  Ad Image (वर्तमान तस्वीर बदलें)
+                </label>
+                <div className="p-2.5 border border-[#e7e5e4] rounded-lg bg-[#faf8f5] mb-2 flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={editAdPreviewUrl || editingAd.imageUrl}
+                    alt="Current Ad"
+                    className="w-16 h-16 rounded object-contain border border-[#e7e5e4] bg-white flex-shrink-0"
+                  />
+                  <div className="min-w-0 text-xs">
+                    <span className="font-semibold text-[#1c1917] block">
+                      {editAdPreviewUrl ? "New Image Selected" : "Current Image Active"}
+                    </span>
+                    <span className="text-[10px] text-[#78716c] truncate block">
+                      {editAdPreviewUrl || editingAd.imageUrl}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    name="photo"
+                    ref={editAdFileRef}
+                    accept="image/png, image/jpeg, image/webp"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = URL.createObjectURL(file);
+                        setEditAdPreviewUrl(url);
+                      }
+                    }}
+                    className="w-full text-xs text-[#57534e] file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#faf8f5] file:text-[#c2410c] hover:file:bg-[#f5f5f4] cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    name="imageUrl"
+                    defaultValue={editingAd.imageUrl}
+                    placeholder="https://..."
+                    onChange={(e) => {
+                      if (e.target.value.startsWith("http")) {
+                        setEditAdPreviewUrl(e.target.value);
+                      }
+                    }}
+                    className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60"
+                  />
+                </div>
+              </div>
+
+              {/* Redirect Link */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                  Click Redirect URL
+                </label>
+                <input
+                  type="text"
+                  name="linkUrl"
+                  defaultValue={editingAd.linkUrl || ""}
+                  placeholder="https://wa.me/..."
+                  className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60 font-mono"
+                />
+              </div>
+
+              {/* Display Order */}
+              <div>
+                <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                  Display Order
+                </label>
+                <input
+                  type="number"
+                  name="displayOrder"
+                  defaultValue={editingAd.displayOrder}
+                  className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60"
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingAd(null);
+                    setEditAdPreviewUrl(null);
+                  }}
+                  className="flex-1 py-2.5 rounded-lg border border-[#d6d3d1] text-xs font-semibold text-[#44403c] hover:bg-[#faf8f5] transition cursor-pointer"
+                >
+                  {t.admin.cancel}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="flex-1 py-2.5 rounded-lg bg-[#c2410c] hover:bg-[#9a3412] text-white text-xs font-semibold transition cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>{t.admin.saving}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>{t.admin.saveChanges}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Edit Candidate Profile Modal */}
+      {editingProfile && (
+        <div className="fixed inset-0 z-50 bg-[#1c1917]/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-xl border border-[#e7e5e4] relative max-h-[92vh] overflow-y-auto">
+            <button
+              onClick={() => {
+                setEditingProfile(null);
+                setEditProfilePhotoPreview(null);
+              }}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-[#a8a29e] hover:text-[#1c1917] hover:bg-[#f5f5f4] cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="mb-5">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#faf8f5] text-[#c2410c] border border-[#e7e5e4] text-xs font-semibold font-mono-tag mb-1.5">
+                <Pencil className="w-3 h-3" /> EDIT CANDIDATE PROFILE
+              </div>
+              <h2 className="font-serif-heading text-xl font-bold text-[#1c1917]">
+                {t.admin.editProfileTitle}
+              </h2>
+              <p className="text-xs text-[#78716c] mt-0.5">
+                प्रत्याशी की व्यक्तिगत जानकारी, मूल वंश, शिक्षा, संपर्क व स्थिति को आवश्यकतानुसार संपादित करें।
+              </p>
+            </div>
+
+            <form onSubmit={handleEditProfileSubmit} className="space-y-5">
+              <input type="hidden" name="id" value={editingProfile.id} />
+
+              {/* Status Selector */}
+              <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-bold text-[#1c1917] block">
+                    Verification Status (सत्यापन स्थिति)
+                  </span>
+                  <span className="text-[10px] text-[#78716c]">
+                    चयनित स्थिति के अनुसार निर्देशिका में लाइव दिखेगा
+                  </span>
+                </div>
+                <select
+                  name="status"
+                  defaultValue={editingProfile.status}
+                  className="h-9 px-3 rounded-lg border border-[#e7e5e4] font-semibold text-xs text-[#1c1917] bg-white cursor-pointer"
+                >
+                  <option value="pending">⏳ समीक्षाधीन (Pending)</option>
+                  <option value="approved">✅ स्वीकृत / प्रकाशित (Approved)</option>
+                  <option value="rejected">❌ अस्वीकृत (Rejected)</option>
+                </select>
+              </div>
+
+              {/* Section 1: Core Identity */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[#c2410c] uppercase tracking-wider font-mono-tag border-b border-[#f5f5f4] pb-1 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  <span>1. व्यक्तिगत विवरण (Identity & Birth Details)</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Full Name (पूरा नाम) <span className="text-[#c2410c]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      required
+                      defaultValue={editingProfile.fullName}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Age (आयु) <span className="text-[#c2410c]">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="age"
+                      required
+                      defaultValue={editingProfile.age}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Date of Birth (जन्म तिथि)
+                    </label>
+                    <input
+                      type="text"
+                      name="dob"
+                      defaultValue={editingProfile.dob || ""}
+                      placeholder="e.g. 19-11-2001"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Time of Birth (जन्म समय)
+                    </label>
+                    <input
+                      type="text"
+                      name="tob"
+                      defaultValue={editingProfile.tob || ""}
+                      placeholder="e.g. 5:59 PM"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Place of Birth (जन्म स्थान)
+                    </label>
+                    <input
+                      type="text"
+                      name="pob"
+                      defaultValue={editingProfile.pob || ""}
+                      placeholder="e.g. Indore"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Height (ऊंचाई)
+                    </label>
+                    <input
+                      type="text"
+                      name="height"
+                      defaultValue={editingProfile.height || ""}
+                      placeholder="e.g. 5'8&quot;"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Gotra (गोत्र)
+                    </label>
+                    <input
+                      type="text"
+                      name="gotra"
+                      defaultValue={editingProfile.gotra || ""}
+                      placeholder="e.g. Bhardwaj"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Location & Address */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[#c2410c] uppercase tracking-wider font-mono-tag border-b border-[#f5f5f4] pb-1 flex items-center gap-1.5">
+                  <Home className="w-3.5 h-3.5" />
+                  <span>2. मूल निवास एवं पता (Origin & Location)</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Native Village (मूल गाँव) <span className="text-[#c2410c]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="gaon"
+                      required
+                      defaultValue={editingProfile.gaon}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Current Area / City (वर्तमान शहर) <span className="text-[#c2410c]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="area"
+                      required
+                      defaultValue={editingProfile.area}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Domicile State (राज्य / प्रान्त)
+                    </label>
+                    <input
+                      type="text"
+                      name="domicile"
+                      defaultValue={editingProfile.domicile || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Resident Address (वर्तमान पता)
+                    </label>
+                    <textarea
+                      name="residentAddress"
+                      rows={2}
+                      defaultValue={editingProfile.residentAddress || ""}
+                      className="w-full p-2.5 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Education & Career */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[#c2410c] uppercase tracking-wider font-mono-tag border-b border-[#f5f5f4] pb-1 flex items-center gap-1.5">
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  <span>3. शिक्षा एवं व्यवसाय (Education & Career)</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Education (उच्च शिक्षा / डिग्री)
+                    </label>
+                    <input
+                      type="text"
+                      name="education"
+                      defaultValue={editingProfile.education || ""}
+                      placeholder="e.g. BBA, MBA - Marketing"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Occupation (व्यवसाय / पद)
+                    </label>
+                    <input
+                      type="text"
+                      name="occupation"
+                      defaultValue={editingProfile.occupation || ""}
+                      placeholder="e.g. Senior Software Engineer"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Family Details */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[#c2410c] uppercase tracking-wider font-mono-tag border-b border-[#f5f5f4] pb-1 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  <span>4. पारिवारिक विवरण (Family Lineage)</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Father&apos;s Name (पिता का नाम)
+                    </label>
+                    <input
+                      type="text"
+                      name="fatherName"
+                      defaultValue={editingProfile.fatherName || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Father&apos;s Occupation (पिता का व्यवसाय)
+                    </label>
+                    <input
+                      type="text"
+                      name="fatherOccupation"
+                      defaultValue={editingProfile.fatherOccupation || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Mother&apos;s Name (माता का नाम)
+                    </label>
+                    <input
+                      type="text"
+                      name="motherName"
+                      defaultValue={editingProfile.motherName || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Mother&apos;s Occupation (माता का व्यवसाय)
+                    </label>
+                    <input
+                      type="text"
+                      name="motherOccupation"
+                      defaultValue={editingProfile.motherOccupation || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Grandfather&apos;s Name (दादाजी का नाम)
+                    </label>
+                    <input
+                      type="text"
+                      name="grandFather"
+                      defaultValue={editingProfile.grandFather || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Grandmother&apos;s Name (दादीजी का नाम)
+                    </label>
+                    <input
+                      type="text"
+                      name="grandMother"
+                      defaultValue={editingProfile.grandMother || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Siblings (भाई-बहन का विवरण)
+                    </label>
+                    <input
+                      type="text"
+                      name="siblings"
+                      defaultValue={editingProfile.siblings || ""}
+                      placeholder="e.g. 1 elder brother, 1 younger sister"
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 5: Contacts */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[#c2410c] uppercase tracking-wider font-mono-tag border-b border-[#f5f5f4] pb-1 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>5. संपर्क विवरण (Contact Details)</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Primary Phone (मुख्य फोन) <span className="text-[#c2410c]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="phoneNumber"
+                      required
+                      defaultValue={editingProfile.phoneNumber}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Father&apos;s Phone (पिता का फोन)
+                    </label>
+                    <input
+                      type="text"
+                      name="fatherContact"
+                      defaultValue={editingProfile.fatherContact || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1c1917] mb-1">
+                      Mother&apos;s Phone (माता का फोन)
+                    </label>
+                    <input
+                      type="text"
+                      name="motherContact"
+                      defaultValue={editingProfile.motherContact || ""}
+                      className="w-full h-9 px-3 rounded-lg border border-[#e7e5e4] text-xs text-[#1c1917] bg-[#faf8f5]/60 font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 6: Photo */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-[#c2410c] uppercase tracking-wider font-mono-tag border-b border-[#f5f5f4] pb-1 flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  <span>6. प्रोफाइल तस्वीर (Profile Photograph)</span>
+                </h3>
+
+                <div className="p-3 border border-[#e7e5e4] rounded-lg bg-[#faf8f5] flex items-center gap-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={editProfilePhotoPreview || editingProfile.photoUrl}
+                    alt="Current candidate"
+                    className="w-20 h-24 rounded-lg object-cover border border-[#e7e5e4] bg-white shadow-xs flex-shrink-0"
+                  />
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="file"
+                      name="photo"
+                      ref={editProfileFileRef}
+                      accept="image/png, image/jpeg, image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setEditProfilePhotoPreview(url);
+                        }
+                      }}
+                      className="w-full text-xs text-[#57534e] file:mr-2 file:py-1.5 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-white file:text-[#c2410c] cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      name="photoUrl"
+                      defaultValue={editingProfile.photoUrl}
+                      placeholder="Or enter image URL"
+                      onChange={(e) => {
+                        if (e.target.value.startsWith("http")) {
+                          setEditProfilePhotoPreview(e.target.value);
+                        }
+                      }}
+                      className="w-full h-8 px-2.5 rounded border border-[#e7e5e4] text-xs text-[#1c1917] bg-white font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-3 flex gap-2 border-t border-[#f5f5f4]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingProfile(null);
+                    setEditProfilePhotoPreview(null);
+                  }}
+                  className="flex-1 py-2.5 rounded-lg border border-[#d6d3d1] text-xs font-semibold text-[#44403c] hover:bg-[#faf8f5] transition cursor-pointer"
+                >
+                  {t.admin.cancel}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="flex-1 py-2.5 rounded-lg bg-[#c2410c] hover:bg-[#9a3412] text-white text-xs font-semibold transition cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>{t.admin.saving}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>{t.admin.saveChanges}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: Quick Inspection Modal for Candidate Profiles */}
       {previewProfile && (
         <div className="fixed inset-0 z-50 bg-[#1c1917]/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-5 sm:p-6 shadow-xl border border-[#e7e5e4] relative max-h-[90vh] overflow-y-auto">
@@ -822,6 +1680,12 @@ export function AdminDashboardClient({
             </div>
 
             <div className="space-y-2.5 text-xs bg-[#faf8f5] p-3.5 sm:p-4 rounded-lg border border-[#e7e5e4] mb-5">
+              <div className="flex justify-between py-1 border-b border-[#e7e5e4] gap-2">
+                <span className="text-[#78716c] flex-shrink-0">{t.admin.colAddedAt}:</span>
+                <span className="font-semibold font-mono-tag text-[#1c1917] text-right">
+                  {formatDateTime(previewProfile.createdAt)}
+                </span>
+              </div>
               <div className="flex justify-between py-1 border-b border-[#e7e5e4] gap-2">
                 <span className="text-[#78716c] flex-shrink-0">{t.profile.gaon}:</span>
                 <span className="font-semibold text-[#1c1917] text-right break-words">{previewProfile.gaon}</span>
@@ -855,6 +1719,18 @@ export function AdminDashboardClient({
             </div>
 
             <div className="flex flex-col xs:flex-row gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingProfile(previewProfile);
+                  setPreviewProfile(null);
+                }}
+                className="flex-1 min-h-[40px] py-2 rounded-lg border border-[#c2410c] text-[#c2410c] hover:bg-amber-50 font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                <span>{t.admin.editBtn}</span>
+              </button>
+
               <button
                 disabled={isPending}
                 onClick={() => handleStatusChange(previewProfile.id, "approved")}

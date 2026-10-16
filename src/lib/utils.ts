@@ -33,3 +33,17 @@ export function formatIndianPhone(phone: string): string {
   }
   return phone;
 }
+
+export function formatDateTime(date: Date | string | number | null | undefined): string {
+  if (!date) return "N/A";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "N/A";
+  return d.toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}

@@ -380,3 +380,185 @@ export async function deleteAdvertisement(id: number) {
     return { success: false, error: err?.message || "Failed to delete advertisement." };
   }
 }
+
+export async function updateAdvertisement(formData: FormData) {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  try {
+    const idStr = formData.get("id") as string;
+    const id = parseInt(idStr, 10);
+    if (!id || isNaN(id)) {
+      return { success: false, error: "Invalid advertisement ID." };
+    }
+
+    const title = (formData.get("title") as string)?.trim();
+    const linkUrl = (formData.get("linkUrl") as string)?.trim() || null;
+    const placement = ((formData.get("placement") as string)?.trim() as AdPlacement) || "home_featured";
+    const imageUrlInput = (formData.get("imageUrl") as string)?.trim();
+    const photoFile = formData.get("photo") as File | null;
+    const displayOrderStr = (formData.get("displayOrder") as string) || "0";
+    const displayOrder = parseInt(displayOrderStr, 10) || 0;
+    const active = (formData.get("active") as string) || "true";
+
+    if (!title) {
+      return { success: false, error: "Ad title is required." };
+    }
+
+    let finalImageUrl = imageUrlInput || "";
+
+    if (photoFile && photoFile.size > 0) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+      if (!allowedTypes.includes(photoFile.type)) {
+        return { success: false, error: "Only JPG, PNG or WebP images are supported." };
+      }
+      const arrayBuffer = await photoFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const uploadResult = await uploadImageToGitHub(buffer, `ad-${Date.now()}-${photoFile.name}`);
+      finalImageUrl = uploadResult.url;
+    }
+
+    const updateData: Partial<Advertisement> = {
+      title,
+      linkUrl,
+      placement,
+      displayOrder,
+      active,
+    };
+
+    if (finalImageUrl) {
+      updateData.imageUrl = finalImageUrl;
+    }
+
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      await mockDb.updateAd(id, updateData);
+    } else {
+      await db.update(advertisements).set(updateData).where(eq(advertisements.id, id));
+    }
+
+    revalidatePath("/");
+    revalidatePath("/directory");
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: any) {
+    console.error("updateAdvertisement error:", err);
+    return { success: false, error: err?.message || "Failed to update advertisement." };
+  }
+}
+
+export async function updateProfileDetails(formData: FormData) {
+  const cookieStore = await cookies();
+  const auth = cookieStore.get("admin_auth");
+  if (!auth || auth.value !== "authenticated_session") {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  try {
+    const idStr = formData.get("id") as string;
+    const id = parseInt(idStr, 10);
+    if (!id || isNaN(id)) {
+      return { success: false, error: "Invalid profile ID." };
+    }
+
+    const fullName = (formData.get("fullName") as string)?.trim();
+    const ageStr = formData.get("age") as string;
+    const gaon = (formData.get("gaon") as string)?.trim();
+    const area = (formData.get("area") as string)?.trim();
+    const phoneNumber = (formData.get("phoneNumber") as string)?.trim();
+    const status = (formData.get("status") as string)?.trim() || "approved";
+
+    if (!fullName || !gaon || !area || !ageStr || !phoneNumber) {
+      return { success: false, error: "Mandatory fields cannot be empty (Name, Gaon, Area, Age, Phone)." };
+    }
+
+    const age = parseInt(ageStr, 10);
+    if (isNaN(age) || age < 18 || age > 100) {
+      return { success: false, error: "Please enter a valid age between 18 and 100." };
+    }
+
+    if (!validateIndianPhone(phoneNumber)) {
+      return { success: false, error: "Please enter a valid 10-digit primary phone number." };
+    }
+
+    const dob = (formData.get("dob") as string)?.trim() || null;
+    const tob = (formData.get("tob") as string)?.trim() || null;
+    const pob = (formData.get("pob") as string)?.trim() || null;
+    const height = (formData.get("height") as string)?.trim() || null;
+    const gotra = (formData.get("gotra") as string)?.trim() || null;
+    const domicile = (formData.get("domicile") as string)?.trim() || null;
+    const residentAddress = (formData.get("residentAddress") as string)?.trim() || null;
+    const education = (formData.get("education") as string)?.trim() || null;
+    const occupation = (formData.get("occupation") as string)?.trim() || null;
+    const fatherName = (formData.get("fatherName") as string)?.trim() || null;
+    const fatherOccupation = (formData.get("fatherOccupation") as string)?.trim() || null;
+    const motherName = (formData.get("motherName") as string)?.trim() || null;
+    const motherOccupation = (formData.get("motherOccupation") as string)?.trim() || null;
+    const siblings = (formData.get("siblings") as string)?.trim() || null;
+    const grandFather = (formData.get("grandFather") as string)?.trim() || null;
+    const grandMother = (formData.get("grandMother") as string)?.trim() || null;
+    const fatherContact = (formData.get("fatherContact") as string)?.trim() || null;
+    const motherContact = (formData.get("motherContact") as string)?.trim() || null;
+
+    const photoUrlInput = (formData.get("photoUrl") as string)?.trim();
+    const photoFile = formData.get("photo") as File | null;
+
+    const updateData: any = {
+      fullName,
+      age,
+      dob,
+      tob,
+      pob,
+      height,
+      gotra,
+      gaon,
+      area,
+      domicile,
+      residentAddress,
+      education,
+      occupation,
+      fatherName,
+      fatherOccupation,
+      motherName,
+      motherOccupation,
+      siblings,
+      grandFather,
+      grandMother,
+      phoneNumber,
+      fatherContact,
+      motherContact,
+      status,
+    };
+
+    if (photoFile && photoFile.size > 0) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+      if (!allowedTypes.includes(photoFile.type)) {
+        return { success: false, error: "Only JPG, PNG or WebP images are supported." };
+      }
+      const arrayBuffer = await photoFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const uploadResult = await uploadImageToGitHub(buffer, `profile-${Date.now()}-${photoFile.name}`);
+      updateData.photoUrl = uploadResult.url;
+    } else if (photoUrlInput) {
+      updateData.photoUrl = photoUrlInput;
+    }
+
+    const { isMock, mockDb, db } = getDatabase();
+    if (isMock || !db) {
+      await mockDb.updateProfile(id, updateData);
+    } else {
+      await db.update(profiles).set(updateData).where(eq(profiles.id, id));
+    }
+
+    revalidatePath("/");
+    revalidatePath("/directory");
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: any) {
+    console.error("updateProfileDetails error:", err);
+    return { success: false, error: err?.message || "Failed to update profile." };
+  }
+}
