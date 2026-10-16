@@ -6,7 +6,6 @@ export const metadata = {
   title: "Admin Dashboard | Samaj Biodata Portal",
 };
 
-
 export default async function AdminDashboardPage() {
   const profiles = await getAllProfilesForAdmin();
 

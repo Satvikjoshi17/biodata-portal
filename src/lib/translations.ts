@@ -7,6 +7,8 @@ export interface TranslationDictionary {
     directory: string;
     register: string;
     admin: string;
+    footerCommunity: string;
+    footerCopyright: string;
   };
   home: {
     badge: string;
@@ -23,6 +25,56 @@ export interface TranslationDictionary {
     directoryHeading: string;
     directorySubtitle: string;
   };
+  directory: {
+    searchPlaceholder: string;
+    allGaon: string;
+    allAreas: string;
+    sortRecent: string;
+    sortAgeAsc: string;
+    sortAgeDesc: string;
+    verifiedProfilesCount: string;
+    clearFilters: string;
+    noProfilesTitle: string;
+    noProfilesDesc: string;
+    resetFilters: string;
+    registerNow: string;
+    verifiedBadge: string;
+    yrs: string;
+    work: string;
+    edu: string;
+    viewBiodata: string;
+    pageTitle: string;
+    pageSubtitle: string;
+  };
+  admin: {
+    loginTitle: string;
+    loginSubtitle: string;
+    passwordLabel: string;
+    passwordPlaceholder: string;
+    signInBtn: string;
+    verifying: string;
+    portalBadge: string;
+    dashboardTitle: string;
+    dashboardSubtitle: string;
+    signOut: string;
+    pendingTab: string;
+    approvedTab: string;
+    rejectedTab: string;
+    searchRecords: string;
+    noSubmissions: string;
+    noSubmissionsDesc: string;
+    colCandidate: string;
+    colVillageArea: string;
+    colAgePhone: string;
+    colEduWork: string;
+    colActions: string;
+    inspectBtn: string;
+    approveBtn: string;
+    rejectBtn: string;
+    modalTitle: string;
+    modalApprove: string;
+    modalReject: string;
+  };
   form: {
     heading: string;
     subheading: string;
@@ -33,6 +85,7 @@ export interface TranslationDictionary {
     uploadBtn: string;
     changeBtn: string;
     selectPhoto: string;
+    photoSpecs: string;
 
     // Sections
     personalTitle: string;
@@ -71,11 +124,18 @@ export interface TranslationDictionary {
     submitBtn: string;
     submitting: string;
     disclaimer: string;
+
+    successTitle: string;
+    statusLabel: string;
+    pendingStatus: string;
+    reservedSlugDesc: string;
+    submitAnother: string;
   };
   profile: {
     backBtn: string;
     verifiedBadge: string;
     ageLabel: string;
+    yearsSuffix: string;
     birthDetails: string;
     pob: string;
     tob: string;
@@ -95,6 +155,7 @@ export interface TranslationDictionary {
     siblings: string;
     grandFather: string;
     grandMother: string;
+    occupationPrefix: string;
     contactTitle: string;
     primaryPhone: string;
     fatherPhone: string;
@@ -102,6 +163,7 @@ export interface TranslationDictionary {
     callNow: string;
     qrTitle: string;
     qrSubtitle: string;
+    directLink: string;
     shareWhatsApp: string;
     downloadQr: string;
     copyLink: string;
@@ -117,9 +179,11 @@ export const translations: Record<Language, TranslationDictionary> = {
       directory: "Directory",
       register: "Register Biodata",
       admin: "Admin",
+      footerCommunity: "Official Community Verification Hub • All India Samaj Parishad",
+      footerCopyright: "© 2026 Samaj Biodata Portal. All verified records are maintained under strict community privacy guidelines.",
     },
     home: {
-      badge: "Verified Community Registry",
+      badge: "Paliwal Brahmin Community Digital Registry",
       heroTitle: "Community Biodata & Lineage Directory",
       heroSubtitle: "A trusted community directory linking native roots, verified educational & professional profiles, and shareable digital QR biodatas.",
       registerBtn: "Register New Biodata",
@@ -133,6 +197,56 @@ export const translations: Record<Language, TranslationDictionary> = {
       directoryHeading: "Verified Community Directory",
       directorySubtitle: "Filter by native village, metropolitan area, or search by profession.",
     },
+    directory: {
+      searchPlaceholder: "Search by name, occupation, degree...",
+      allGaon: "All Native Villages (Gaon)",
+      allAreas: "All Cities / Areas",
+      sortRecent: "Sort: Recently Registered",
+      sortAgeAsc: "Sort: Age (Youngest first)",
+      sortAgeDesc: "Sort: Age (Oldest first)",
+      verifiedProfilesCount: "Verified Community Profiles",
+      clearFilters: "Clear Filters",
+      noProfilesTitle: "No Verified Profiles Found",
+      noProfilesDesc: "There are no profiles matching the selected village or area filters. Try widening your search or register a new family member.",
+      resetFilters: "Reset Filters",
+      registerNow: "Register Now",
+      verifiedBadge: "VERIFIED",
+      yrs: "Yrs",
+      work: "Work",
+      edu: "Edu",
+      viewBiodata: "View Biodata & QR",
+      pageTitle: "Community Directory (Prashasanik Suchi)",
+      pageSubtitle: "Filter verified biodata by native village (gaon), city area, and age.",
+    },
+    admin: {
+      loginTitle: "Admin Authentication",
+      loginSubtitle: "Enter your secure administrative password to access the verification hub.",
+      passwordLabel: "Admin Secret Key / Password",
+      passwordPlaceholder: "••••••••••••",
+      signInBtn: "Sign In to Dashboard",
+      verifying: "Verifying...",
+      portalBadge: "ADMINISTRATIVE PORTAL",
+      dashboardTitle: "Biodata Verification Control Center",
+      dashboardSubtitle: "Review submissions, inspect candidate photos & family lineage, and approve profiles to the public directory.",
+      signOut: "Sign Out",
+      pendingTab: "Pending Review",
+      approvedTab: "Approved",
+      rejectedTab: "Rejected",
+      searchRecords: "Search records by name, village or city...",
+      noSubmissions: "No submissions found",
+      noSubmissionsDesc: "There are no applications matching this verification status.",
+      colCandidate: "Candidate",
+      colVillageArea: "Native Village & Area",
+      colAgePhone: "Age / Phone",
+      colEduWork: "Education / Work",
+      colActions: "Actions",
+      inspectBtn: "Inspect Details",
+      approveBtn: "Approve",
+      rejectBtn: "Reject",
+      modalTitle: "Application Inspection",
+      modalApprove: "Approve Biodata",
+      modalReject: "Reject",
+    },
     form: {
       heading: "Community Biodata Registration",
       subheading: "Please submit authentic and accurate details for verification. Once approved by the administrator, your digital QR biodata will be published.",
@@ -143,6 +257,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       uploadBtn: "Upload Photograph",
       changeBtn: "Change Photo",
       selectPhoto: "Select Photo",
+      photoSpecs: "JPG, PNG • MAX 5MB",
 
       personalTitle: "1. Personal Identity & Astrological Details",
       fullName: "Full Name",
@@ -180,11 +295,18 @@ export const translations: Record<Language, TranslationDictionary> = {
       submitBtn: "Submit Biodata for Verification",
       submitting: "Submitting Biodata & Uploading...",
       disclaimer: "Your information is secure. Profiles are published to the public directory only after administrator verification.",
+
+      successTitle: "Registration Submitted!",
+      statusLabel: "Status",
+      pendingStatus: "Pending Admin Verification",
+      reservedSlugDesc: "Your unique profile slug is reserved. Once approved, it will be published to the public directory.",
+      submitAnother: "Submit Another Form",
     },
     profile: {
       backBtn: "Back to Directory",
       verifiedBadge: "Verified Samaj Record",
       ageLabel: "Age",
+      yearsSuffix: "Years",
       birthDetails: "Birth & Horoscope Details",
       pob: "Place of Birth",
       tob: "Time of Birth",
@@ -204,6 +326,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       siblings: "Siblings",
       grandFather: "Paternal Grandfather",
       grandMother: "Paternal Grandmother",
+      occupationPrefix: "Occupation",
       contactTitle: "Contact Details",
       primaryPhone: "Primary Phone",
       fatherPhone: "Father's Phone",
@@ -211,6 +334,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       callNow: "Call",
       qrTitle: "Digital Biodata QR Code",
       qrSubtitle: "Scan from any smartphone camera or WhatsApp to open this verified card.",
+      directLink: "Direct Link",
       shareWhatsApp: "Share on WhatsApp",
       downloadQr: "Download QR (PNG)",
       copyLink: "Copy Profile Link",
@@ -224,9 +348,11 @@ export const translations: Record<Language, TranslationDictionary> = {
       directory: "निर्देशिका",
       register: "बायोडाटा जोड़ें",
       admin: "प्रशासन",
+      footerCommunity: "आधिकारिक समुदाय सत्यापन केंद्र • अखिल भारतीय समाज परिषद",
+      footerCopyright: "© 2026 समाज बायोडाटा पोर्टल। सभी सत्यापित अभिलेख समुदाय की गोपनीयता नीतियों के तहत सुरक्षित हैं।",
     },
     home: {
-      badge: "प्रमाणित समाज अभिलेख",
+      badge: "पालीवाल ब्राह्मण समाज डिजिटल अभिलेख",
       heroTitle: "सामूहिक बायोडाटा एवं पारिवारिक निर्देशिका",
       heroSubtitle: "मूल गाँव, प्रमाणित शैक्षणिक व व्यावसायिक प्रोफाइल एवं डिजिटल क्यूआर पहचान पत्र को जोड़ने वाली विश्वसनीय समुदाय निर्देशिका।",
       registerBtn: "नया बायोडाटा जोड़ें",
@@ -240,6 +366,56 @@ export const translations: Record<Language, TranslationDictionary> = {
       directoryHeading: "सत्यापित निर्देशिका",
       directorySubtitle: "मूल गाँव, शहर अथवा व्यवसाय के आधार पर खोजें।",
     },
+    directory: {
+      searchPlaceholder: "नाम, व्यवसाय, डिग्री द्वारा खोजें...",
+      allGaon: "सभी मूल गाँव (Gaon)",
+      allAreas: "सभी वर्तमान शहर / क्षेत्र",
+      sortRecent: "क्रमबद्ध: हाल ही में पंजीकृत",
+      sortAgeAsc: "क्रमबद्ध: आयु (कम से अधिक)",
+      sortAgeDesc: "क्रमबद्ध: आयु (अधिक से कम)",
+      verifiedProfilesCount: "सत्यापित समुदाय सदस्य",
+      clearFilters: "फ़िल्टर हटाएं",
+      noProfilesTitle: "कोई सत्यापित प्रोफाइल नहीं मिली",
+      noProfilesDesc: "चयनित गाँव अथवा शहर के अनुसार कोई प्रोफाइल उपलब्ध नहीं है। कृपया अपनी खोज का दायरा बढ़ाएं या नया बायोडाटा जोड़ें।",
+      resetFilters: "फ़िल्टर रीसेट करें",
+      registerNow: "नया बायोडाटा जोड़ें",
+      verifiedBadge: "सत्यापित",
+      yrs: "वर्ष",
+      work: "व्यवसाय",
+      edu: "शिक्षा",
+      viewBiodata: "बायोडाटा व QR देखें",
+      pageTitle: "समुदाय निर्देशिका (प्रशासनिक सूची)",
+      pageSubtitle: "मूल गाँव, वर्तमान नगर एवं आयु के अनुसार सत्यापित बायोडाटा देखें।",
+    },
+    admin: {
+      loginTitle: "प्रशासकीय प्रमाणीकरण",
+      loginSubtitle: "सत्यापन नियंत्रण कक्ष में प्रवेश हेतु अपना सुरक्षित एडमिन पासवर्ड दर्ज करें।",
+      passwordLabel: "एडमिन गोपनीय कुंजी / पासवर्ड",
+      passwordPlaceholder: "••••••••••••",
+      signInBtn: "डैशबोर्ड में प्रवेश करें",
+      verifying: "सत्यापन जारी है...",
+      portalBadge: "प्रशासनिक पोर्टल",
+      dashboardTitle: "बायोडाटा सत्यापन नियंत्रण कक्ष",
+      dashboardSubtitle: "प्राप्त बायोडाटा की समीक्षा करें, फोटो व मूल वंश का सत्यापन करें तथा निर्देशिका में प्रकाशित करें।",
+      signOut: "लॉग आउट",
+      pendingTab: "समीक्षाधीन",
+      approvedTab: "प्रमाणित",
+      rejectedTab: "अस्वीकृत",
+      searchRecords: "नाम, गाँव अथवा शहर द्वारा खोजें...",
+      noSubmissions: "कोई आवेदन उपलब्ध नहीं है",
+      noSubmissionsDesc: "इस श्रेणी में वर्तमान में कोई आवेदन शेष नहीं है।",
+      colCandidate: "प्रत्याशी",
+      colVillageArea: "मूल गाँव एवं क्षेत्र",
+      colAgePhone: "आयु / मोबाइल",
+      colEduWork: "शिक्षा / व्यवसाय",
+      colActions: "कार्यवाही",
+      inspectBtn: "विवरण देखें",
+      approveBtn: "स्वीकृत करें",
+      rejectBtn: "अस्वीकार करें",
+      modalTitle: "बायोडाटा निरीक्षण",
+      modalApprove: "बायोडाटा स्वीकृत करें",
+      modalReject: "अस्वीकार करें",
+    },
     form: {
       heading: "समाज बायोडाटा पंजीकरण प्रपत्र",
       subheading: "कृपया सत्यापन हेतु प्रामाणिक विवरण भरें। प्रशासनिक अनुमोदन के उपरांत आपका डिजिटल बायोडाटा व क्यूआर कार्ड प्रकाशित किया जाएगा।",
@@ -250,6 +426,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       uploadBtn: "फोटो अपलोड करें",
       changeBtn: "फोटो बदलें",
       selectPhoto: "फोटो चुनें",
+      photoSpecs: "JPG, PNG • अधिकतम 5MB",
 
       personalTitle: "1. व्यक्तिगत एवं जन्म विवरण",
       fullName: "पूरा नाम (Full Name)",
@@ -287,11 +464,18 @@ export const translations: Record<Language, TranslationDictionary> = {
       submitBtn: "सत्यापन हेतु बायोडाटा जमा करें",
       submitting: "अपलोड एवं प्रक्रिया जारी है...",
       disclaimer: "आपकी जानकारी सुरक्षित है। प्रशासनिक समीक्षा एवं सत्यापन के बाद ही निर्देशिका में प्रदर्शित होगी।",
+
+      successTitle: "पंजीकरण सफलतापूर्वक प्राप्त हुआ!",
+      statusLabel: "स्थिति",
+      pendingStatus: "प्रशासनिक सत्यापन हेतु लंबित",
+      reservedSlugDesc: "आपका विशिष्ट प्रोफाइल कोड आरक्षित कर लिया गया है। प्रशासनिक स्वीकृति के उपरांत यह निर्देशिका में लाइव हो जाएगा।",
+      submitAnother: "अन्य बायोडाटा दर्ज करें",
     },
     profile: {
       backBtn: "निर्देशिका पर वापस लौटें",
       verifiedBadge: "प्रमाणित समाज अभिलेख",
       ageLabel: "आयु",
+      yearsSuffix: "वर्ष",
       birthDetails: "जन्म एवं ज्योतिषीय विवरण",
       pob: "जन्म स्थान",
       tob: "जन्म समय",
@@ -311,6 +495,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       siblings: "भाई-बहन",
       grandFather: "दादाजी",
       grandMother: "दादीजी",
+      occupationPrefix: "व्यवसाय",
       contactTitle: "संपर्क सूत्र",
       primaryPhone: "मुख्य मोबाइल",
       fatherPhone: "पिताजी का संपर्क",
@@ -318,6 +503,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       callNow: "कॉल करें",
       qrTitle: "डिजिटल क्यूआर कोड",
       qrSubtitle: "स्मार्टफोन कैमरा या व्हाट्सएप से स्कैन कर डिजिटल बायोडाटा तुरंत खोलें।",
+      directLink: "सीधा लिंक",
       shareWhatsApp: "व्हाट्सएप पर साझा करें",
       downloadQr: "QR कोड डाउनलोड करें (PNG)",
       copyLink: "प्रोफाइल लिंक कॉपी करें",

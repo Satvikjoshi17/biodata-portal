@@ -1,43 +1,50 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { adminLogin } from "@/lib/actions";
 import { toast } from "sonner";
-import { ShieldCheck, Lock, Loader2, ArrowRight } from "lucide-react";
+import { Lock, Loader2, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export function AdminLoginForm() {
+  const { t } = useLanguage();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     startTransition(async () => {
-      const res = await adminLogin(password);
-      if (res.success) {
-        toast.success("Admin authenticated successfully!");
-        router.push("/admin/dashboard");
-        router.refresh();
-      } else {
-        setError(res.error || "Invalid secret password.");
-        toast.error("Authentication failed.");
+      try {
+        const res = await adminLogin(password);
+        if (res.success) {
+          toast.success("Admin authenticated successfully!");
+          // Use full document navigation to bypass any stale client router cache
+          window.location.href = "/admin/dashboard";
+        } else {
+          setError(res.error || "Invalid secret password.");
+          toast.error("Authentication failed.");
+        }
+      } catch (err: any) {
+        setError(err?.message || "An unexpected error occurred during login.");
+        toast.error("Login failed.");
       }
     });
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 bg-white rounded-2xl border border-slate-200/90 p-8 shadow-xs">
+    <div className="max-w-md mx-auto my-12 bg-white rounded-2xl border border-[#e7e5e4] p-8 shadow-xs">
       <div className="text-center mb-6">
-        <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-xs">
+        <div className="w-12 h-12 bg-[#faf8f5] text-[#c2410c] border border-[#e7e5e4] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-xs">
           <Lock className="w-6 h-6" />
         </div>
-        <h1 className="text-xl font-bold text-slate-900">Admin Authentication</h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Enter your secure administrative password to access the verification hub.
+        <h1 className="font-serif-heading text-xl font-bold text-[#1c1917]">
+          {t.admin.loginTitle}
+        </h1>
+        <p className="text-xs text-[#78716c] mt-1 leading-relaxed">
+          {t.admin.loginSubtitle}
         </p>
       </div>
 
@@ -49,31 +56,31 @@ export function AdminLoginForm() {
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Admin Secret Key / Password
+          <label className="block text-xs font-semibold text-[#44403c] mb-1.5 font-mono-tag">
+            {t.admin.passwordLabel}
           </label>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••••"
-            className="w-full h-11 px-3.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+            placeholder={t.admin.passwordPlaceholder}
+            className="w-full h-11 px-3.5 rounded-xl border border-[#e7e5e4] bg-[#faf8f5]/60 text-sm text-[#1c1917] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c]"
           />
         </div>
 
         <button
           type="submit"
           disabled={isPending}
-          className="w-full min-h-[44px] py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+          className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#c2410c] hover:bg-[#9a3412] text-white font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 shadow-xs"
         >
           {isPending ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Verifying...
+              <Loader2 className="w-4 h-4 animate-spin" /> {t.admin.verifying}
             </>
           ) : (
             <>
-              Sign In to Dashboard <ArrowRight className="w-4 h-4" />
+              {t.admin.signInBtn} <ArrowRight className="w-4 h-4" />
             </>
           )}
         </button>

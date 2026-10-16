@@ -204,7 +204,7 @@ export function RegisterForm() {
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h2 className="font-serif-heading text-2xl font-bold text-[#1c1917] mb-2">
-          Registration Submitted!
+          {t.form.successTitle}
         </h2>
         <p className="text-[#57534e] text-sm leading-relaxed mb-6">
           {successData.message}
@@ -212,13 +212,13 @@ export function RegisterForm() {
 
         <div className="bg-[#faf8f5] border border-[#e7e5e4] rounded-lg p-4 mb-6 text-left text-xs">
           <div className="font-mono-tag uppercase tracking-wider text-[#78716c] font-semibold text-[10px] mb-1">
-            Status
+            {t.form.statusLabel}
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-amber-100 text-amber-900 font-semibold font-mono-tag">
-            Pending Admin Verification
+            {t.form.pendingStatus}
           </div>
           <p className="text-[#78716c] mt-2 leading-normal">
-            Your unique profile slug (<strong className="font-mono text-[#1c1917]">{successData.slug}</strong>) is reserved. Once approved, it will be published to the public directory.
+            {t.form.reservedSlugDesc} (<strong className="font-mono text-[#1c1917]">{successData.slug}</strong>)
           </p>
         </div>
 
@@ -260,7 +260,7 @@ export function RegisterForm() {
             }}
             className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg border border-[#d6d3d1] text-[#44403c] text-xs font-semibold hover:bg-[#faf8f5] transition cursor-pointer"
           >
-            Submit Another Form
+            {t.form.submitAnother}
           </button>
         </div>
       </div>
@@ -294,7 +294,7 @@ export function RegisterForm() {
           <span className="text-xs font-bold uppercase tracking-wider text-[#78716c] font-mono-tag">
             {t.form.photoTitle} <span className="text-[#c2410c]">*</span>
           </span>
-          <span className="text-[10px] text-[#a8a29e] font-mono-tag">JPG, PNG &bull; MAX 5MB</span>
+          <span className="text-[10px] text-[#a8a29e] font-mono-tag">{t.form.photoSpecs}</span>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-5">

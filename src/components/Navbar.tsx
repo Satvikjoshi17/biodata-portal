@@ -48,7 +48,7 @@ export function Navbar() {
             <Link
               href="/admin/dashboard"
               className="p-2 rounded-lg text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] transition"
-              title="Admin Portal"
+              title={t.navbar.admin}
             >
               <ShieldCheck className="w-5 h-5" />
             </Link>
@@ -69,17 +69,17 @@ export function Footer() {
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block animate-pulse"></span>
             <span className="font-medium text-[#44403c]">
-              Official Community Verification Hub • अखिल भारतीय समाज परिषद
+              {t.navbar.footerCommunity}
             </span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="/" className="hover:text-[#1c1917] transition">{t.navbar.directory}</Link>
             <Link href="/register" className="hover:text-[#1c1917] transition">{t.navbar.register}</Link>
-            <Link href="/admin/login" className="hover:text-[#1c1917] transition">Admin Portal</Link>
+            <Link href="/admin/login" className="hover:text-[#1c1917] transition">{t.navbar.admin}</Link>
           </div>
         </div>
         <div className="mt-6 pt-6 border-t border-[#e7e5e4] text-center text-[11px] text-[#a8a29e]">
-          &copy; 2026 Samaj Biodata Portal. All verified records are maintained under strict community privacy guidelines.
+          {t.navbar.footerCopyright}
         </div>
       </div>
     </footer>

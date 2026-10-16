@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { updateProfileStatus, adminLogout } from "@/lib/actions";
 import { toast } from "sonner";
 import { formatIndianPhone } from "@/lib/utils";
+import { useLanguage } from "@/lib/LanguageContext";
 import type { Profile } from "@/lib/schema";
 import {
   CheckCircle,
@@ -23,6 +24,7 @@ interface AdminDashboardClientProps {
 }
 
 export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientProps) {
+  const { t } = useLanguage();
   const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
   const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected">("pending");
   const [previewProfile, setPreviewProfile] = useState<Profile | null>(null);
@@ -79,13 +81,13 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[#e7e5e4] shadow-xs">
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#faf8f5] text-[#c2410c] border border-[#e7e5e4] text-xs font-semibold font-mono-tag mb-2">
-            <ShieldCheck className="w-3.5 h-3.5" /> ADMINISTRATIVE PORTAL
+            <ShieldCheck className="w-3.5 h-3.5" /> {t.admin.portalBadge}
           </div>
           <h1 className="font-serif-heading text-2xl font-black text-[#1c1917] tracking-tight">
-            बायोडाटा सत्यापन नियंत्रण कक्ष
+            {t.admin.dashboardTitle}
           </h1>
           <p className="text-xs text-[#78716c] mt-1">
-            Review submissions, inspect candidate photos &amp; family origin, and approve profiles to the public directory.
+            {t.admin.dashboardSubtitle}
           </p>
         </div>
 
@@ -93,7 +95,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
           onClick={handleLogout}
           className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#d6d3d1] text-[#44403c] hover:bg-[#faf8f5] text-xs font-semibold transition cursor-pointer self-start sm:self-auto"
         >
-          <LogOut className="w-3.5 h-3.5 text-[#78716c]" /> Sign Out
+          <LogOut className="w-3.5 h-3.5 text-[#78716c]" /> {t.admin.signOut}
         </button>
       </div>
 
@@ -109,7 +111,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
                 : "text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            <span>समीक्षाधीन (Pending)</span>
+            <span>{t.admin.pendingTab}</span>
             <span
               className={`px-1.5 py-0.2 rounded text-[10px] font-mono-tag font-bold ${
                 counts.pending > 0 ? "bg-amber-100 text-amber-900" : "bg-[#e7e5e4] text-[#78716c]"
@@ -127,7 +129,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
                 : "text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            <span>प्रमाणित (Approved)</span>
+            <span>{t.admin.approvedTab}</span>
             <span className="px-1.5 py-0.2 rounded text-[10px] font-mono-tag font-bold bg-emerald-100 text-emerald-900">
               {counts.approved}
             </span>
@@ -141,7 +143,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
                 : "text-[#78716c] hover:text-[#1c1917]"
             }`}
           >
-            <span>अस्वीकृत (Rejected)</span>
+            <span>{t.admin.rejectedTab}</span>
             <span className="px-1.5 py-0.2 rounded text-[10px] font-mono-tag font-bold bg-rose-100 text-rose-900">
               {counts.rejected}
             </span>
@@ -149,11 +151,11 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
         </div>
 
         {/* Search */}
-        <div className="relative min-w-[220px]">
+        <div className="relative min-w-[240px]">
           <Search className="w-3.5 h-3.5 text-[#a8a29e] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search records..."
+            placeholder={t.admin.searchRecords}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full h-9 pl-8 pr-3 rounded-lg border border-[#e7e5e4] bg-white text-xs text-[#1c1917] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c]"
@@ -166,9 +168,9 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
         {currentList.length === 0 ? (
           <div className="p-12 text-center text-[#78716c]">
             <Clock className="w-6 h-6 text-[#a8a29e] mx-auto mb-2" />
-            <p className="text-sm font-semibold text-[#1c1917]">No {activeTab} submissions</p>
+            <p className="text-sm font-semibold text-[#1c1917]">{t.admin.noSubmissions}</p>
             <p className="text-xs text-[#a8a29e] mt-0.5">
-              There are no applications matching this verification status.
+              {t.admin.noSubmissionsDesc}
             </p>
           </div>
         ) : (
@@ -176,11 +178,11 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#f5f5f4] bg-[#faf8f5] text-[10px] font-bold uppercase tracking-wider text-[#78716c] font-mono-tag">
-                  <th className="py-3 px-4">Candidate</th>
-                  <th className="py-3 px-4">Native Village &amp; Area</th>
-                  <th className="py-3 px-4">Age / Phone</th>
-                  <th className="py-3 px-4">Education / Work</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-4">{t.admin.colCandidate}</th>
+                  <th className="py-3 px-4">{t.admin.colVillageArea}</th>
+                  <th className="py-3 px-4">{t.admin.colAgePhone}</th>
+                  <th className="py-3 px-4">{t.admin.colEduWork}</th>
+                  <th className="py-3 px-4 text-right">{t.admin.colActions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f5f5f4] text-xs text-[#57534e]">
@@ -216,7 +218,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
 
                     <td className="py-3.5 px-4">
                       <div className="space-y-0.5">
-                        <div className="font-semibold text-[#1c1917]">{p.age} Yrs</div>
+                        <div className="font-semibold text-[#1c1917]">{p.age} {t.directory.yrs}</div>
                         <div className="font-mono-tag text-[#78716c] text-[11px]">
                           {formatIndianPhone(p.phoneNumber)}
                         </div>
@@ -236,8 +238,8 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => setPreviewProfile(p)}
-                          className="p-1.5 rounded border border-[#d6d3d1] hover:bg-[#faf8f5] text-[#57534e] transition"
-                          title="Inspect Details"
+                          className="p-1.5 rounded border border-[#d6d3d1] hover:bg-[#faf8f5] text-[#57534e] transition cursor-pointer"
+                          title={t.admin.inspectBtn}
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -248,7 +250,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
                             onClick={() => handleStatusChange(p.id, "approved")}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#166534] hover:bg-[#14532d] text-white font-semibold text-[11px] transition shadow-xs cursor-pointer"
                           >
-                            <CheckCircle className="w-3 h-3" /> Approve
+                            <CheckCircle className="w-3 h-3" /> {t.admin.approveBtn}
                           </button>
                         )}
 
@@ -258,7 +260,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
                             onClick={() => handleStatusChange(p.id, "rejected")}
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-rose-700 hover:bg-rose-800 text-white font-semibold text-[11px] transition shadow-xs cursor-pointer"
                           >
-                            <XCircle className="w-3 h-3" /> Reject
+                            <XCircle className="w-3 h-3" /> {t.admin.rejectBtn}
                           </button>
                         )}
                       </div>
@@ -277,7 +279,7 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
           <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-[#e7e5e4] relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setPreviewProfile(null)}
-              className="absolute top-4 right-4 p-1 rounded-lg text-[#a8a29e] hover:text-[#1c1917] hover:bg-[#f5f5f4]"
+              className="absolute top-4 right-4 p-1 rounded-lg text-[#a8a29e] hover:text-[#1c1917] hover:bg-[#f5f5f4] cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -299,31 +301,31 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
 
             <div className="space-y-2.5 text-xs bg-[#faf8f5] p-4 rounded-lg border border-[#e7e5e4] mb-5">
               <div className="flex justify-between py-1 border-b border-[#e7e5e4]">
-                <span className="text-[#78716c]">मूल गाँव (Gaon):</span>
+                <span className="text-[#78716c]">{t.profile.gaon}:</span>
                 <span className="font-semibold text-[#1c1917]">{previewProfile.gaon}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#e7e5e4]">
-                <span className="text-[#78716c]">वर्तमान क्षेत्र (Area):</span>
+                <span className="text-[#78716c]">{t.profile.area}:</span>
                 <span className="font-semibold text-[#1c1917]">{previewProfile.area}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#e7e5e4]">
-                <span className="text-[#78716c]">आयु (Age):</span>
-                <span className="font-semibold text-[#1c1917]">{previewProfile.age} yrs</span>
+                <span className="text-[#78716c]">{t.profile.ageLabel}:</span>
+                <span className="font-semibold text-[#1c1917]">{previewProfile.age} {t.directory.yrs}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#e7e5e4]">
-                <span className="text-[#78716c]">मोबाइल (Phone):</span>
+                <span className="text-[#78716c]">{t.profile.primaryPhone}:</span>
                 <span className="font-semibold font-mono-tag text-[#1c1917]">
                   {formatIndianPhone(previewProfile.phoneNumber)}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#e7e5e4]">
-                <span className="text-[#78716c]">शिक्षा (Education):</span>
+                <span className="text-[#78716c]">{t.profile.education}:</span>
                 <span className="font-semibold text-[#1c1917]">
                   {previewProfile.education || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-[#78716c]">व्यवसाय (Occupation):</span>
+                <span className="text-[#78716c]">{t.profile.occupation}:</span>
                 <span className="font-semibold text-[#1c1917]">
                   {previewProfile.occupation || "N/A"}
                 </span>
@@ -336,14 +338,14 @@ export function AdminDashboardClient({ initialProfiles }: AdminDashboardClientPr
                 onClick={() => handleStatusChange(previewProfile.id, "approved")}
                 className="flex-1 py-2 rounded-lg bg-[#166534] hover:bg-[#14532d] text-white font-semibold text-xs transition cursor-pointer"
               >
-                Approve Biodata
+                {t.admin.modalApprove}
               </button>
               <button
                 disabled={isPending}
                 onClick={() => handleStatusChange(previewProfile.id, "rejected")}
                 className="flex-1 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs transition cursor-pointer"
               >
-                Reject
+                {t.admin.modalReject}
               </button>
             </div>
           </div>

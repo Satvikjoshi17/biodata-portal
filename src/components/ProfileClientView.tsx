@@ -58,7 +58,7 @@ export function ProfileClientView({ profile }: ProfileClientViewProps) {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs font-mono-tag">
-                    VERIFIED
+                    {t.directory.verifiedBadge}
                   </div>
                 </div>
 
@@ -74,7 +74,7 @@ export function ProfileClientView({ profile }: ProfileClientViewProps) {
 
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-[#d6d3d1]">
                     <span>
-                      {t.profile.ageLabel}: <strong className="text-white font-semibold">{profile.age} Years</strong>
+                      {t.profile.ageLabel}: <strong className="text-white font-semibold">{profile.age} {t.profile.yearsSuffix}</strong>
                     </span>
                     {profile.height && (
                       <>
@@ -198,7 +198,7 @@ export function ProfileClientView({ profile }: ProfileClientViewProps) {
                           {profile.fatherName}
                           {profile.fatherOccupation && (
                             <span className="block text-[#57534e] text-[11px] font-normal">
-                              Occupation: {profile.fatherOccupation}
+                              {t.profile.occupationPrefix}: {profile.fatherOccupation}
                             </span>
                           )}
                         </span>
@@ -212,7 +212,7 @@ export function ProfileClientView({ profile }: ProfileClientViewProps) {
                           {profile.motherName}
                           {profile.motherOccupation && (
                             <span className="block text-[#57534e] text-[11px] font-normal">
-                              Occupation: {profile.motherOccupation}
+                              {t.profile.occupationPrefix}: {profile.motherOccupation}
                             </span>
                           )}
                         </span>
@@ -283,7 +283,7 @@ export function ProfileClientView({ profile }: ProfileClientViewProps) {
                           href={`tel:${profile.fatherContact}`}
                           className="px-2.5 py-1 rounded bg-[#1c1917] text-white text-[11px] font-semibold hover:bg-[#c2410c] transition"
                         >
-                          Call
+                          {t.profile.callNow}
                         </a>
                       </div>
                     )}
@@ -302,7 +302,7 @@ export function ProfileClientView({ profile }: ProfileClientViewProps) {
                           href={`tel:${profile.motherContact}`}
                           className="px-2.5 py-1 rounded bg-[#1c1917] text-white text-[11px] font-semibold hover:bg-[#c2410c] transition"
                         >
-                          Call
+                          {t.profile.callNow}
                         </a>
                       </div>
                     )}

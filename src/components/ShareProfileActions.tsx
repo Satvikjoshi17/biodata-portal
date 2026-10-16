@@ -68,7 +68,7 @@ export function ShareProfileActions({ slug, fullName }: ShareProfileActionsProps
           {t.profile.qrTitle}
         </span>
         <span className="text-[10px] bg-[#faf8f5] px-2 py-0.5 rounded text-[#57534e] border border-[#e7e5e4] font-mono-tag">
-          Direct Link
+          {t.profile.directLink}
         </span>
       </div>
 
