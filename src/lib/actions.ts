@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { getDatabase } from "@/lib/db";
 import { profiles, advertisements, type Advertisement, type AdPlacement } from "@/lib/schema";
 import { uploadImageToGitHub } from "@/lib/github";
-import { generateSlug, validateIndianPhone } from "@/lib/utils";
+import { generateSlug, validateIndianPhone, formatExternalUrl } from "@/lib/utils";
 import { eq, desc, and } from "drizzle-orm";
 
 export async function submitRegistration(formData: FormData) {
@@ -275,7 +275,8 @@ export async function createAdvertisement(formData: FormData) {
 
   try {
     const title = (formData.get("title") as string)?.trim();
-    const linkUrl = (formData.get("linkUrl") as string)?.trim() || null;
+    const rawLink = (formData.get("linkUrl") as string)?.trim();
+    const linkUrl = rawLink ? formatExternalUrl(rawLink) : null;
     const placement = ((formData.get("placement") as string)?.trim() as AdPlacement) || "home_featured";
     const imageUrlInput = (formData.get("imageUrl") as string)?.trim();
     const photoFile = formData.get("photo") as File | null;
@@ -396,7 +397,8 @@ export async function updateAdvertisement(formData: FormData) {
     }
 
     const title = (formData.get("title") as string)?.trim();
-    const linkUrl = (formData.get("linkUrl") as string)?.trim() || null;
+    const rawLink = (formData.get("linkUrl") as string)?.trim();
+    const linkUrl = rawLink ? formatExternalUrl(rawLink) : null;
     const placement = ((formData.get("placement") as string)?.trim() as AdPlacement) || "home_featured";
     const imageUrlInput = (formData.get("imageUrl") as string)?.trim();
     const photoFile = formData.get("photo") as File | null;

@@ -24,6 +24,9 @@ export interface TranslationDictionary {
     instantValue: string;
     directoryHeading: string;
     directorySubtitle: string;
+    communityFlyersTitle: string;
+    communityFlyersSubtitle: string;
+    communityNoticeTag: string;
   };
   directory: {
     searchPlaceholder: string;
@@ -93,6 +96,48 @@ export interface TranslationDictionary {
     uploadPhoto: string;
     orEnterUrl: string;
     publishAd: string;
+    adEngineTitle: string;
+    adEngineSubtitle: string;
+    adTitleLabel: string;
+    placementLabel: string;
+    adImageLabel: string;
+    redirectUrlLabel: string;
+    displayOrderLabel: string;
+    imageSizeGuideTitle: string;
+    guidePortrait: string;
+    guideHorizontal: string;
+    guideSquare: string;
+    optionPortrait: string;
+    optionTopBanner: string;
+    optionHomeFeatured: string;
+    optionDirectoryInfeed: string;
+    optionProfileSidebar: string;
+    statusLabel: string;
+    statusActiveDesc: string;
+    statusInactiveDesc: string;
+    currentImageActive: string;
+    newImageSelected: string;
+    editAdSubtitle: string;
+    createAdSubtitle: string;
+  };
+  ads: {
+    sponsored: string;
+    communityPartner: string;
+    communitySponsor: string;
+    communityFlyer: string;
+    verticalLayout: string;
+    featuredSponsor: string;
+    viewDetails: string;
+    viewFullPoster: string;
+    zoomPoster: string;
+    contactOrVisit: string;
+    visitPartner: string;
+    close: string;
+    fullPosterPreview: string;
+    advertisement: string;
+    businessPartner: string;
+    patronNotice: string;
+    clickToZoomHint: string;
   };
   form: {
     heading: string;
@@ -193,18 +238,18 @@ export interface TranslationDictionary {
 export const translations: Record<Language, TranslationDictionary> = {
   en: {
     navbar: {
-      title: "Samaj Biodata",
-      subtitle: "Official Community Verification Hub • Est. 2026",
+      title: "Paliwal Brahman Samaj",
+      subtitle: "Official Samaj Verification Hub • Est. 2026",
       directory: "Directory",
       register: "Register Biodata",
       admin: "Admin",
-      footerCommunity: "Official Community Verification Hub • All India Samaj Parishad",
-      footerCopyright: "© 2026 Samaj Biodata Portal. All verified records are maintained under strict community privacy guidelines.",
+      footerCommunity: "Official Samaj Verification Hub • Paliwal Brahman Samaj",
+      footerCopyright: "© 2026 Paliwal Brahman Samaj Biodata Portal. All verified records are maintained under strict Samaj privacy guidelines.",
     },
     home: {
-      badge: "Paliwal Brahmin Community Digital Registry",
-      heroTitle: "Community Biodata & Lineage Directory",
-      heroSubtitle: "A trusted community directory linking native roots, verified educational & professional profiles, and shareable digital QR biodatas.",
+      badge: "Paliwal Brahman Samaj Digital Registry",
+      heroTitle: "Paliwal Brahman Samaj Biodata & Lineage Directory",
+      heroSubtitle: "A trusted Samaj directory linking native roots, verified educational & professional profiles, and shareable digital QR biodatas.",
       registerBtn: "Register New Biodata",
       exploreBtn: "Explore Directory",
       statusLabel: "Registry Status",
@@ -213,8 +258,11 @@ export const translations: Record<Language, TranslationDictionary> = {
       totalSuffix: "Active Records",
       instantLabel: "Instant Access",
       instantValue: "Scan & Share via QR",
-      directoryHeading: "Verified Community Directory",
+      directoryHeading: "Verified Samaj Directory",
       directorySubtitle: "Filter by native village, metropolitan area, or search by profession.",
+      communityFlyersTitle: "📜 Samaj Noticeboard & Posters",
+      communityFlyersSubtitle: "Official vertical posters for Samaj Sammelan, Samaj notices, and verified partner announcements.",
+      communityNoticeTag: "SAMAJ FLYERS",
     },
     directory: {
       searchPlaceholder: "Search by name, occupation, degree...",
@@ -223,7 +271,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       sortRecent: "Sort: Recently Registered",
       sortAgeAsc: "Sort: Age (Youngest first)",
       sortAgeDesc: "Sort: Age (Oldest first)",
-      verifiedProfilesCount: "Verified Community Profiles",
+      verifiedProfilesCount: "Verified Samaj Profiles",
       clearFilters: "Clear Filters",
       noProfilesTitle: "No Verified Profiles Found",
       noProfilesDesc: "There are no profiles matching the selected village or area filters. Try widening your search or register a new family member.",
@@ -234,8 +282,8 @@ export const translations: Record<Language, TranslationDictionary> = {
       work: "Work",
       edu: "Edu",
       viewBiodata: "View Biodata & QR",
-      pageTitle: "Community Directory (Prashasanik Suchi)",
-      pageSubtitle: "Filter verified biodata by native village (gaon), city area, and age.",
+      pageTitle: "Paliwal Brahman Samaj Directory (Prashasanik Suchi)",
+      pageSubtitle: "Filter verified biodata by native village (gaon), city area, and age across Paliwal Brahman Samaj.",
     },
     admin: {
       loginTitle: "Admin Authentication",
@@ -273,7 +321,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       cancel: "Cancel",
       editProfileTitle: "Edit Candidate Profile",
       editAdTitle: "Edit Advertisement",
-      createAdBtn: "Create New Ad",
+      createAdBtn: "➕ Create New Ad",
       adActive: "ACTIVE",
       adInactive: "INACTIVE",
       deactivateBtn: "Deactivate",
@@ -284,11 +332,53 @@ export const translations: Record<Language, TranslationDictionary> = {
       uploadPhoto: "Upload Photo File",
       orEnterUrl: "Or paste online image URL",
       publishAd: "Publish Advertisement",
+      adEngineTitle: "Advertisement Engine Controls",
+      adEngineSubtitle: "Configure, inspect and manage advertisements across all layouts (Portrait Flyer, Top Banner, Homepage Feature, Directory In-Feed, Profile Sidebar).",
+      adTitleLabel: "Sponsor / Ad Title",
+      placementLabel: "Display Layout Placement",
+      adImageLabel: "Advertisement Image",
+      redirectUrlLabel: "Click Redirect URL (Website / WhatsApp / Phone)",
+      displayOrderLabel: "Display Priority / Order (0 = First)",
+      imageSizeGuideTitle: "Image Size Recommendations:",
+      guidePortrait: "• Vertical / Portrait Poster (3:4, 9:16): Choose 'Portrait Poster / Flyer' or 'Profile Sidebar'. Never cropped, preserves full notice details with zoom modal.",
+      guideHorizontal: "• Wide Horizontal Banner (16:9, 728x90): Choose 'Top Header Banner' or 'Homepage Middle Feature'.",
+      guideSquare: "• Square (1:1): Choose 'Directory In-Feed Card'.",
+      optionPortrait: "📜 Portrait Poster / Flyer (Vertical 3:4 / 9:16)",
+      optionTopBanner: "🏷️ Top Header Banner (Wide 1200x200)",
+      optionHomeFeatured: "🌟 Homepage Middle Feature (Wide 1200x400)",
+      optionDirectoryInfeed: "🃏 Directory In-Feed Card (Square / 4:3)",
+      optionProfileSidebar: "📌 Profile Page Sidebar (Vertical 3:4)",
+      statusLabel: "Status",
+      statusActiveDesc: "Active (Visible on public site)",
+      statusInactiveDesc: "Inactive (Hidden)",
+      currentImageActive: "Current Image Active",
+      newImageSelected: "New Image Selected",
+      editAdSubtitle: "Update ad title, placement layout, link or replace banner artwork.",
+      createAdSubtitle: "Upload image, pick placement layout, and configure target redirect link.",
+    },
+    ads: {
+      sponsored: "SPONSORED",
+      communityPartner: "SAMAJ PARTNER",
+      communitySponsor: "SAMAJ SPONSOR",
+      communityFlyer: "SAMAJ FLYER",
+      verticalLayout: "Vertical Layout",
+      featuredSponsor: "Featured Sponsor",
+      viewDetails: "View Details",
+      viewFullPoster: "View Full Poster",
+      zoomPoster: "Zoom Poster",
+      contactOrVisit: "Contact / Visit",
+      visitPartner: "Visit Partner",
+      close: "Close",
+      fullPosterPreview: "SAMAJ FLYER & NOTICEBOARD • FULL PREVIEW",
+      advertisement: "Advertisement",
+      businessPartner: "Samaj Associate Business",
+      patronNotice: "Samaj Patron Notice",
+      clickToZoomHint: "Click to view full poster",
     },
     form: {
-      heading: "Community Biodata Registration",
-      subheading: "Please submit authentic and accurate details for verification. Once approved by the administrator, your digital QR biodata will be published.",
-      badge: "Official Registration Form",
+      heading: "Paliwal Brahman Samaj Biodata Registration",
+      subheading: "Please submit authentic and accurate details for verification. Once approved by Paliwal Brahman Samaj administrator, your digital QR biodata will be published.",
+      badge: "Official Samaj Registration Form",
       backBtn: "Back to Directory",
       photoTitle: "Passport Photograph",
       photoGuidance: "Please upload a recent, clear portrait photo (JPG, PNG, max 5MB).",
@@ -381,18 +471,18 @@ export const translations: Record<Language, TranslationDictionary> = {
   },
   hi: {
     navbar: {
-      title: "समाज बायोडाटा",
-      subtitle: "प्रमाणित समुदाय निर्देशिका • स्था. 2026",
+      title: "पालीवाल ब्राह्मण समाज",
+      subtitle: "प्रमाणित समाज निर्देशिका • स्था. २०२६",
       directory: "निर्देशिका",
       register: "बायोडाटा जोड़ें",
       admin: "प्रशासन",
-      footerCommunity: "आधिकारिक समुदाय सत्यापन केंद्र • अखिल भारतीय समाज परिषद",
-      footerCopyright: "© 2026 समाज बायोडाटा पोर्टल। सभी सत्यापित अभिलेख समुदाय की गोपनीयता नीतियों के तहत सुरक्षित हैं।",
+      footerCommunity: "आधिकारिक समाज सत्यापन केंद्र • पालीवाल ब्राह्मण समाज",
+      footerCopyright: "© २०२६ पालीवाल ब्राह्मण समाज बायोडाटा पोर्टल। सभी सत्यापित अभिलेख समाज की गोपनीयता नीतियों के तहत सुरक्षित हैं।",
     },
     home: {
       badge: "पालीवाल ब्राह्मण समाज डिजिटल अभिलेख",
-      heroTitle: "सामूहिक बायोडाटा एवं पारिवारिक निर्देशिका",
-      heroSubtitle: "मूल गाँव, प्रमाणित शैक्षणिक व व्यावसायिक प्रोफाइल एवं डिजिटल क्यूआर पहचान पत्र को जोड़ने वाली विश्वसनीय समुदाय निर्देशिका।",
+      heroTitle: "पालीवाल ब्राह्मण समाज बायोडाटा एवं पारिवारिक निर्देशिका",
+      heroSubtitle: "मूल गाँव, प्रमाणित शैक्षणिक व व्यावसायिक प्रोफाइल एवं डिजिटल क्यूआर पहचान पत्र को जोड़ने वाली विश्वसनीय समाज निर्देशिका।",
       registerBtn: "नया बायोडाटा जोड़ें",
       exploreBtn: "निर्देशिका देखें",
       statusLabel: "सत्यापन स्थिति",
@@ -401,8 +491,11 @@ export const translations: Record<Language, TranslationDictionary> = {
       totalSuffix: "सक्रिय अभिलेख",
       instantLabel: "त्वरित पहुँच",
       instantValue: "QR द्वारा साझा करें",
-      directoryHeading: "सत्यापित निर्देशिका",
+      directoryHeading: "सत्यापित समाज निर्देशिका",
       directorySubtitle: "मूल गाँव, शहर अथवा व्यवसाय के आधार पर खोजें।",
+      communityFlyersTitle: "📜 समाज पत्रिका एवं मुख्य पोस्टर",
+      communityFlyersSubtitle: "समाज सम्मेलन, मांगलिक आयोजन व प्रमुख प्रतिष्ठानों के अधिकृत वर्टिकल पोस्टर।",
+      communityNoticeTag: "SAMAJ FLYERS",
     },
     directory: {
       searchPlaceholder: "नाम, व्यवसाय, डिग्री द्वारा खोजें...",
@@ -411,7 +504,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       sortRecent: "क्रमबद्ध: हाल ही में पंजीकृत",
       sortAgeAsc: "क्रमबद्ध: आयु (कम से अधिक)",
       sortAgeDesc: "क्रमबद्ध: आयु (अधिक से कम)",
-      verifiedProfilesCount: "सत्यापित समुदाय सदस्य",
+      verifiedProfilesCount: "सत्यापित समाज सदस्य",
       clearFilters: "फ़िल्टर हटाएं",
       noProfilesTitle: "कोई सत्यापित प्रोफाइल नहीं मिली",
       noProfilesDesc: "चयनित गाँव अथवा शहर के अनुसार कोई प्रोफाइल उपलब्ध नहीं है। कृपया अपनी खोज का दायरा बढ़ाएं या नया बायोडाटा जोड़ें।",
@@ -422,7 +515,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       work: "व्यवसाय",
       edu: "शिक्षा",
       viewBiodata: "बायोडाटा व QR देखें",
-      pageTitle: "समुदाय निर्देशिका (प्रशासनिक सूची)",
+      pageTitle: "पालीवाल ब्राह्मण समाज निर्देशिका (प्रशासनिक सूची)",
       pageSubtitle: "मूल गाँव, वर्तमान नगर एवं आयु के अनुसार सत्यापित बायोडाटा देखें।",
     },
     admin: {
@@ -472,11 +565,53 @@ export const translations: Record<Language, TranslationDictionary> = {
       uploadPhoto: "फोटो फ़ाइल अपलोड करें",
       orEnterUrl: "या ऑनलाइन इमेज URL दर्ज करें",
       publishAd: "विज्ञापन प्रकाशित करें",
+      adEngineTitle: "विज्ञापन नियंत्रण केंद्र",
+      adEngineSubtitle: "सभी लेआउट्स (पोर्ट्रेट पोस्टर, शीर्ष बैनर, मुखपृष्ठ फीचर, निर्देशिका इन-फीड, प्रोफाइल साइडबार) के विज्ञापनों को प्रबंधित करें।",
+      adTitleLabel: "विज्ञापन शीर्षक / प्रायोजक",
+      placementLabel: "विज्ञापन स्थान / लेआउट",
+      adImageLabel: "विज्ञापन तस्वीर",
+      redirectUrlLabel: "क्लिक रीडायरेक्ट लिंक (वेबसाइट / व्हाट्सएप / फोन)",
+      displayOrderLabel: "प्रदर्शन प्राथमिकता (0 = सबसे पहले)",
+      imageSizeGuideTitle: "इमेज साइज़ सुझाव:",
+      guidePortrait: "• खड़े / वर्टिकल पोस्टर (3:4, 9:16): 'पोर्ट्रेट पोस्टर (Portrait Flyer)' या 'प्रोफाइल साइडबार' चुनें। पोस्टर पूरा दिखेगा और ज़ूम करके बारीक जानकारी भी पढ़ी जा सकेगी।",
+      guideHorizontal: "• आड़े / चौड़े बैनर (16:9, 728x90): 'शीर्ष बैनर' या 'मुखपृष्ठ मध्य फीचर' चुनें।",
+      guideSquare: "• चौकोर (1:1): 'निर्देशिका इन-फीड कार्ड' चुनें।",
+      optionPortrait: "📜 वर्टिकल पोस्टर / पैम्फलेट (3:4 / 9:16)",
+      optionTopBanner: "🏷️ शीर्ष बैनर (चौड़ा 1200x200)",
+      optionHomeFeatured: "🌟 मुखपृष्ठ मध्य फीचर (चौड़ा 1200x400)",
+      optionDirectoryInfeed: "🃏 निर्देशिका इन-फीड कार्ड (चौकोर / 4:3)",
+      optionProfileSidebar: "📌 प्रोफाइल पेज साइडबार (वर्टिकल 3:4)",
+      statusLabel: "सक्रियता स्थिति",
+      statusActiveDesc: "सक्रिय (साइट पर लाइव दिखेगा)",
+      statusInactiveDesc: "निष्क्रिय (छिपा हुआ रहेगा)",
+      currentImageActive: "वर्तमान तस्वीर सक्रिय है",
+      newImageSelected: "नई तस्वीर चुनी गई",
+      editAdSubtitle: "विज्ञापन का शीर्षक, लेआउट, लिंक अथवा नई तस्वीर अपडेट करें।",
+      createAdSubtitle: "तस्वीर चुनें, लेआउट स्थान तय करें एवं टारगेट रीडायरेक्ट लिंक निर्धारित करें।",
+    },
+    ads: {
+      sponsored: "प्रायोजित",
+      communityPartner: "समाज सहयोगी",
+      communitySponsor: "समाज प्रायोजक",
+      communityFlyer: "समाज पत्रिका / पोस्टर",
+      verticalLayout: "वर्टिकल लेआउट",
+      featuredSponsor: "मुख्य प्रायोजक",
+      viewDetails: "विवरण देखें",
+      viewFullPoster: "पूरा पोस्टर देखें",
+      zoomPoster: "ज़ूम करें",
+      contactOrVisit: "संपर्क / विजिट करें",
+      visitPartner: "विजिट करें",
+      close: "बंद करें",
+      fullPosterPreview: "समाज विज्ञापन एवं पोस्टर • पूर्ण प्रिव्यू",
+      advertisement: "विज्ञापन",
+      businessPartner: "समाज सहयोगी प्रतिष्ठान",
+      patronNotice: "विशिष्ट समाज सूचना",
+      clickToZoomHint: "क्लिक करके पूरा पोस्टर देखें",
     },
     form: {
-      heading: "समाज बायोडाटा पंजीकरण प्रपत्र",
-      subheading: "कृपया सत्यापन हेतु प्रामाणिक विवरण भरें। प्रशासनिक अनुमोदन के उपरांत आपका डिजिटल बायोडाटा व क्यूआर कार्ड प्रकाशित किया जाएगा।",
-      badge: "आधिकारिक पंजीकरण फॉर्म",
+      heading: "पालीवाल ब्राह्मण समाज बायोडाटा पंजीकरण प्रपत्र",
+      subheading: "कृपया सत्यापन हेतु प्रामाणिक विवरण भरें। पालीवाल ब्राह्मण समाज प्रशासनिक अनुमोदन के उपरांत आपका डिजिटल बायोडाटा व क्यूआर कार्ड प्रकाशित किया जाएगा।",
+      badge: "आधिकारिक समाज पंजीकरण फॉर्म",
       backBtn: "निर्देशिका पर वापस लौटें",
       photoTitle: "पासपोर्ट आकार का फोटो",
       photoGuidance: "कृपया स्पष्ट एवं हालिया फोटो अपलोड करें (JPG, PNG, अधिकतम 5MB)।",

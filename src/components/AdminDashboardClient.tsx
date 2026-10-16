@@ -13,7 +13,7 @@ import {
   getAllProfilesForAdmin,
 } from "@/lib/actions";
 import { toast } from "sonner";
-import { formatIndianPhone, formatDateTime } from "@/lib/utils";
+import { formatIndianPhone, formatDateTime, formatExternalUrl } from "@/lib/utils";
 import { useLanguage } from "@/lib/LanguageContext";
 import type { Profile, Advertisement, AdPlacement } from "@/lib/schema";
 import {
@@ -55,7 +55,7 @@ export function AdminDashboardClient({
   initialProfiles,
   initialAds = [],
 }: AdminDashboardClientProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
   const [ads, setAds] = useState<Advertisement[]>(initialAds);
   const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected" | "ads">("pending");
@@ -237,15 +237,15 @@ export function AdminDashboardClient({
   const getPlacementBadge = (placement: string) => {
     switch (placement) {
       case "portrait_flyer":
-        return { label: "Portrait Poster / Flyer", color: "bg-rose-100 text-rose-900 border-rose-200" };
+        return { label: t.admin.optionPortrait, color: "bg-rose-100 text-rose-900 border-rose-200" };
       case "top_banner":
-        return { label: "Top Header Banner", color: "bg-blue-100 text-blue-900 border-blue-200" };
+        return { label: t.admin.optionTopBanner, color: "bg-blue-100 text-blue-900 border-blue-200" };
       case "home_featured":
-        return { label: "Homepage Feature", color: "bg-purple-100 text-purple-900 border-purple-200" };
+        return { label: t.admin.optionHomeFeatured, color: "bg-purple-100 text-purple-900 border-purple-200" };
       case "directory_infeed":
-        return { label: "Directory In-Feed Card", color: "bg-amber-100 text-amber-900 border-amber-200" };
+        return { label: t.admin.optionDirectoryInfeed, color: "bg-amber-100 text-amber-900 border-amber-200" };
       case "profile_sidebar":
-        return { label: "Profile Sidebar", color: "bg-emerald-100 text-emerald-900 border-emerald-200" };
+        return { label: t.admin.optionProfileSidebar, color: "bg-emerald-100 text-emerald-900 border-emerald-200" };
       default:
         return { label: placement, color: "bg-slate-100 text-slate-800 border-slate-200" };
     }
@@ -362,7 +362,7 @@ export function AdminDashboardClient({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={activeTab === "ads" ? "Search ads by title / layout..." : t.admin.searchRecords}
+              placeholder={activeTab === "ads" ? (language === "hi" ? "विज्ञापन शीर्षक / लेआउट खोजें..." : "Search ads by title / layout...") : t.admin.searchRecords}
               className="w-full h-9 pl-8.5 pr-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-white placeholder-[#a8a29e]"
             />
           </div>
@@ -388,13 +388,13 @@ export function AdminDashboardClient({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-amber-50 to-[#faf8f5] p-3.5 sm:p-4 rounded-xl border border-amber-200/70">
             <div>
               <h3 className="font-serif-heading text-sm sm:text-base font-bold text-[#1c1917] flex items-center gap-2">
-                <span>📢 विज्ञापन नियंत्रण केंद्र (Advertisement Engine Controls)</span>
+                <span>📢 {t.admin.adEngineTitle}</span>
                 <span className="text-[10px] font-mono-tag bg-[#c2410c] text-white px-2 py-0.5 rounded-full">
-                  {t.admin.adActive}: {counts.activeAds} / कुल: {counts.ads}
+                  {t.admin.adActive}: {counts.activeAds} / {language === "hi" ? "कुल" : "Total"}: {counts.ads}
                 </span>
               </h3>
               <p className="text-xs text-[#78716c] mt-0.5">
-                सभी लेआउट्स (पोर्ट्रेट पोस्टर, टॉप बैनर, मुखपृष्ठ फीचर, डायरेक्टरी कार्ड, प्रोफाइल साइडबार) के विज्ञापनों को संपादित व प्रबंधित करें।
+                {t.admin.adEngineSubtitle}
               </p>
             </div>
 
@@ -413,9 +413,13 @@ export function AdminDashboardClient({
           {filteredAds.length === 0 ? (
             <div className="bg-white rounded-xl border border-[#e7e5e4] p-12 text-center text-[#78716c]">
               <Megaphone className="w-8 h-8 text-[#a8a29e] mx-auto mb-2" />
-              <p className="text-sm font-semibold text-[#1c1917]">No Advertisements Found</p>
+              <p className="text-sm font-semibold text-[#1c1917]">
+                {language === "hi" ? "कोई विज्ञापन नहीं मिला" : "No Advertisements Found"}
+              </p>
               <p className="text-xs text-[#a8a29e] mt-0.5">
-                Click &quot;{t.admin.createAdBtn}&quot; to configure advertisements for any placement.
+                {language === "hi"
+                  ? `किसी भी स्थान के लिए विज्ञापन जोड़ने हेतु "${t.admin.createAdBtn}" पर क्लिक करें।`
+                  : `Click "${t.admin.createAdBtn}" to configure advertisements for any placement.`}
               </p>
             </div>
           ) : (
@@ -478,7 +482,7 @@ export function AdminDashboardClient({
 
                         {ad.linkUrl ? (
                           <a
-                            href={ad.linkUrl}
+                            href={formatExternalUrl(ad.linkUrl)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-[11px] text-[#c2410c] hover:underline truncate max-w-full font-mono"
@@ -613,7 +617,11 @@ export function AdminDashboardClient({
                               : "bg-amber-100 text-amber-800"
                           }`}
                         >
-                          {p.status === "approved" ? "स्वीकृत" : p.status === "rejected" ? "अस्वीकृत" : "समीक्षाधीन"}
+                          {p.status === "approved"
+                            ? (language === "hi" ? "स्वीकृत" : "Approved")
+                            : p.status === "rejected"
+                            ? (language === "hi" ? "अस्वीकृत" : "Rejected")
+                            : (language === "hi" ? "समीक्षाधीन" : "Pending")}
                         </span>
                       </div>
                     </div>
@@ -746,10 +754,10 @@ export function AdminDashboardClient({
                               }`}
                             >
                               {p.status === "approved"
-                                ? "स्वीकृत • APPROVED"
+                                ? (language === "hi" ? "स्वीकृत • APPROVED" : "APPROVED")
                                 : p.status === "rejected"
-                                ? "अस्वीकृत • REJECTED"
-                                : "प्रतीक्षारत • PENDING"}
+                                ? (language === "hi" ? "अस्वीकृत • REJECTED" : "REJECTED")
+                                : (language === "hi" ? "प्रतीक्षारत • PENDING" : "PENDING")}
                             </span>
                           </div>
                         </td>
@@ -828,7 +836,7 @@ export function AdminDashboardClient({
                 {t.admin.createAdBtn}
               </h2>
               <p className="text-xs text-[#78716c] mt-0.5">
-                तस्वीर चुनें, लेआउट स्थान तय करें एवं टारगेट रीडायरेक्ट लिंक निर्धारित करें।
+                {t.admin.createAdSubtitle}
               </p>
             </div>
 
@@ -836,13 +844,13 @@ export function AdminDashboardClient({
               {/* Sponsor Title */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Sponsor / Ad Title (विज्ञापन शीर्षक) <span className="text-[#c2410c]">*</span>
+                  {t.admin.adTitleLabel} <span className="text-[#c2410c]">*</span>
                 </label>
                 <input
                   type="text"
                   name="title"
                   required
-                  placeholder="e.g. Shree Paliwal Jewellers - Wedding Collection"
+                  placeholder={language === "hi" ? "उदा. श्री पालीवाल ज्वेलर्स - शादी कलेक्शन" : "e.g. Shree Paliwal Jewellers - Wedding Collection"}
                   className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60"
                 />
               </div>
@@ -850,7 +858,7 @@ export function AdminDashboardClient({
               {/* Placement Layout Selector */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Display Layout Placement (विज्ञापन स्थान) <span className="text-[#c2410c]">*</span>
+                  {t.admin.placementLabel} <span className="text-[#c2410c]">*</span>
                 </label>
                 <select
                   name="placement"
@@ -858,36 +866,36 @@ export function AdminDashboardClient({
                   onChange={(e) => setAdPlacement(e.target.value as AdPlacement)}
                   className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60 cursor-pointer"
                 >
-                  <option value="portrait_flyer">📜 Portrait Poster / Flyer (वर्टिकल पोस्टर / पैम्फलेट - 3:4 / 9:16)</option>
-                  <option value="top_banner">🏷️ Top Header Banner (शीर्ष बैनर - All Pages / Home Header)</option>
-                  <option value="home_featured">🌟 Homepage Middle Feature (मुखपृष्ठ मध्य बैनर)</option>
-                  <option value="directory_infeed">🃏 Directory In-Feed Card (निर्देशिका इन-फीड कार्ड)</option>
-                  <option value="profile_sidebar">📌 Profile Page Sidebar (बायोडाटा साइडबार)</option>
+                  <option value="portrait_flyer">{t.admin.optionPortrait}</option>
+                  <option value="top_banner">{t.admin.optionTopBanner}</option>
+                  <option value="home_featured">{t.admin.optionHomeFeatured}</option>
+                  <option value="directory_infeed">{t.admin.optionDirectoryInfeed}</option>
+                  <option value="profile_sidebar">{t.admin.optionProfileSidebar}</option>
                 </select>
                 <p className="text-[10px] text-[#78716c] mt-1">
-                  {adPlacement === "portrait_flyer" && "⭐ Best for vertical posters, leaflets & flyers (recommended: 3:4, 4:5 or 9:16). Never cropped and includes full-screen zoom preview."}
-                  {adPlacement === "top_banner" && "Wide responsive banner below header (recommended: 1200x200 or 728x90)."}
-                  {adPlacement === "home_featured" && "Showcase editorial banner in the middle of home page (recommended: 1200x400)."}
-                  {adPlacement === "directory_infeed" && "Appears naturally inside profile grid cards (recommended: 800x800 or 4:3)."}
-                  {adPlacement === "profile_sidebar" && "Appears underneath QR share card on candidate profile page (recommended: 300x400)."}
+                  {adPlacement === "portrait_flyer" && (language === "hi" ? "⭐ खड़े पोस्टर, पैम्फलेट व पत्रिकाओं हेतु सर्वोत्तम (अनुशंसित 3:4 या 9:16)। यह बिना कटे पूरा दिखेगा व ज़ूम प्रिव्यू उपलब्ध होगा।" : "⭐ Best for vertical posters, leaflets & flyers (recommended: 3:4, 4:5 or 9:16). Never cropped and includes full-screen zoom preview.")}
+                  {adPlacement === "top_banner" && (language === "hi" ? "हेडर के नीचे मुख्य चौड़ा बैनर (अनुशंसित: 1200x200 या 728x90)।" : "Wide responsive banner below header (recommended: 1200x200 or 728x90).")}
+                  {adPlacement === "home_featured" && (language === "hi" ? "मुखपृष्ठ के मध्य में विशेष प्रायोजक बैनर (अनुशंसित: 1200x400)।" : "Showcase editorial banner in the middle of home page (recommended: 1200x400).")}
+                  {adPlacement === "directory_infeed" && (language === "hi" ? "बायोडाटा डायरेक्टरी कार्ड्स के बीच स्वाभाविक रूप से प्रदर्शित (अनुशंसित: 800x800 या 4:3)।" : "Appears naturally inside profile grid cards (recommended: 800x800 or 4:3).")}
+                  {adPlacement === "profile_sidebar" && (language === "hi" ? "बायोडाटा पृष्ठ पर क्यूआर कार्ड के नीचे साइडबार में (अनुशंसित: 300x400)।" : "Appears underneath QR share card on candidate profile page (recommended: 300x400).")}
                 </p>
 
                 {/* Helpful image size guide */}
                 <div className="mt-2.5 p-2.5 bg-amber-50/80 border border-amber-200/80 rounded-lg text-[10px] text-[#78350f] space-y-1">
                   <div className="font-bold flex items-center gap-1 text-[#92400e]">
                     <Sparkles className="w-3 h-3 flex-shrink-0" />
-                    <span>इमेज साइज़ सुझाव (Image Size Guide):</span>
+                    <span>{t.admin.imageSizeGuideTitle}</span>
                   </div>
-                  <p>• <strong>खड़े / वर्टिकल पोस्टर (Portrait 3:4, 9:16):</strong> &ldquo;Portrait Poster / Flyer&rdquo; या &ldquo;Profile Sidebar&rdquo; चुनें। पोस्टर पूरा दिखाई देगा और दर्शक ज़ूम करके बारीक जानकारी भी पढ़ सकेंगे।</p>
-                  <p>• <strong>आड़े / चौड़े बैनर (Horizontal 16:9):</strong> &ldquo;Top Header Banner&rdquo; या &ldquo;Homepage Middle Feature&rdquo; चुनें।</p>
-                  <p>• <strong>चौकोर (Square 1:1):</strong> &ldquo;Directory In-Feed Card&rdquo; चुनें।</p>
+                  <p>{t.admin.guidePortrait}</p>
+                  <p>{t.admin.guideHorizontal}</p>
+                  <p>{t.admin.guideSquare}</p>
                 </div>
               </div>
 
               {/* Ad Image: Upload File OR Input URL */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Advertisement Image (विज्ञापन तस्वीर) <span className="text-[#c2410c]">*</span>
+                  {t.admin.adImageLabel} <span className="text-[#c2410c]">*</span>
                 </label>
                 <div className="space-y-2">
                   <input
@@ -924,7 +932,7 @@ export function AdminDashboardClient({
                 {adPreviewUrl && (
                   <div className="mt-3 p-2 border border-[#e7e5e4] rounded-lg bg-[#faf8f5]">
                     <span className="text-[10px] text-[#78716c] font-mono-tag block mb-1">
-                      Live Image Preview:
+                      {language === "hi" ? "इमेज लाइव प्रिव्यू:" : "Live Image Preview:"}
                     </span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -939,7 +947,7 @@ export function AdminDashboardClient({
               {/* Target Link URL */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Click Redirect URL (Website / WhatsApp / Phone)
+                  {t.admin.redirectUrlLabel}
                 </label>
                 <input
                   type="text"
@@ -952,7 +960,7 @@ export function AdminDashboardClient({
               {/* Display Order */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Display Priority / Order (0 = First)
+                  {t.admin.displayOrderLabel}
                 </label>
                 <input
                   type="number"
@@ -1016,7 +1024,7 @@ export function AdminDashboardClient({
                 {t.admin.editAdTitle}
               </h2>
               <p className="text-xs text-[#78716c] mt-0.5">
-                विज्ञापन का शीर्षक, लेआउट, लिंक अथवा नई तस्वीर अपडेट करें।
+                {t.admin.editAdSubtitle}
               </p>
             </div>
 
@@ -1026,7 +1034,7 @@ export function AdminDashboardClient({
               {/* Title */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Sponsor / Ad Title <span className="text-[#c2410c]">*</span>
+                  {t.admin.adTitleLabel} <span className="text-[#c2410c]">*</span>
                 </label>
                 <input
                   type="text"
@@ -1040,40 +1048,40 @@ export function AdminDashboardClient({
               {/* Placement */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Display Layout Placement <span className="text-[#c2410c]">*</span>
+                  {t.admin.placementLabel} <span className="text-[#c2410c]">*</span>
                 </label>
                 <select
                   name="placement"
                   defaultValue={editingAd.placement}
                   className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60 cursor-pointer"
                 >
-                  <option value="portrait_flyer">📜 Portrait Poster / Flyer (वर्टिकल पोस्टर / पैम्फलेट - 3:4 / 9:16)</option>
-                  <option value="top_banner">🏷️ Top Header Banner (शीर्ष बैनर - All Pages / Home Header)</option>
-                  <option value="home_featured">🌟 Homepage Middle Feature (मुखपृष्ठ मध्य बैनर)</option>
-                  <option value="directory_infeed">🃏 Directory In-Feed Card (निर्देशिका इन-फीड कार्ड)</option>
-                  <option value="profile_sidebar">📌 Profile Page Sidebar (बायोडाटा साइडबार)</option>
+                  <option value="portrait_flyer">{t.admin.optionPortrait}</option>
+                  <option value="top_banner">{t.admin.optionTopBanner}</option>
+                  <option value="home_featured">{t.admin.optionHomeFeatured}</option>
+                  <option value="directory_infeed">{t.admin.optionDirectoryInfeed}</option>
+                  <option value="profile_sidebar">{t.admin.optionProfileSidebar}</option>
                 </select>
               </div>
 
               {/* Status */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Status (सक्रियता)
+                  {t.admin.statusLabel}
                 </label>
                 <select
                   name="active"
                   defaultValue={editingAd.active}
                   className="w-full h-10 px-3 rounded-lg border border-[#e7e5e4] focus:outline-none focus:ring-2 focus:ring-[#c2410c]/20 focus:border-[#c2410c] text-xs text-[#1c1917] bg-[#faf8f5]/60 cursor-pointer"
                 >
-                  <option value="true">✅ {t.admin.adActive} (साइट पर लाइव दिखेगा)</option>
-                  <option value="false">❌ {t.admin.adInactive} (छिपा हुआ रहेगा)</option>
+                  <option value="true">✅ {t.admin.statusActiveDesc}</option>
+                  <option value="false">❌ {t.admin.statusInactiveDesc}</option>
                 </select>
               </div>
 
               {/* Current Image & Replacement */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Ad Image (वर्तमान तस्वीर बदलें)
+                  {t.admin.adImageLabel}
                 </label>
                 <div className="p-2.5 border border-[#e7e5e4] rounded-lg bg-[#faf8f5] mb-2 flex items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1084,7 +1092,7 @@ export function AdminDashboardClient({
                   />
                   <div className="min-w-0 text-xs">
                     <span className="font-semibold text-[#1c1917] block">
-                      {editAdPreviewUrl ? "New Image Selected" : "Current Image Active"}
+                      {editAdPreviewUrl ? t.admin.newImageSelected : t.admin.currentImageActive}
                     </span>
                     <span className="text-[10px] text-[#78716c] truncate block">
                       {editAdPreviewUrl || editingAd.imageUrl}
@@ -1125,7 +1133,7 @@ export function AdminDashboardClient({
               {/* Redirect Link */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Click Redirect URL
+                  {t.admin.redirectUrlLabel}
                 </label>
                 <input
                   type="text"
@@ -1139,7 +1147,7 @@ export function AdminDashboardClient({
               {/* Display Order */}
               <div>
                 <label className="block text-xs font-semibold text-[#1c1917] mb-1">
-                  Display Order
+                  {t.admin.displayOrderLabel}
                 </label>
                 <input
                   type="number"
@@ -1206,7 +1214,9 @@ export function AdminDashboardClient({
                 {t.admin.editProfileTitle}
               </h2>
               <p className="text-xs text-[#78716c] mt-0.5">
-                प्रत्याशी की व्यक्तिगत जानकारी, मूल वंश, शिक्षा, संपर्क व स्थिति को आवश्यकतानुसार संपादित करें।
+                {language === "hi"
+                  ? "प्रत्याशी की व्यक्तिगत जानकारी, मूल वंश, शिक्षा, संपर्क व स्थिति को आवश्यकतानुसार संपादित करें।"
+                  : "Edit candidate identity, lineage, education, contact details and verification status."}
               </p>
             </div>
 
@@ -1217,10 +1227,12 @@ export function AdminDashboardClient({
               <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl flex items-center justify-between gap-3">
                 <div>
                   <span className="text-xs font-bold text-[#1c1917] block">
-                    Verification Status (सत्यापन स्थिति)
+                    {language === "hi" ? "सत्यापन स्थिति (Verification Status)" : "Verification Status"}
                   </span>
                   <span className="text-[10px] text-[#78716c]">
-                    चयनित स्थिति के अनुसार निर्देशिका में लाइव दिखेगा
+                    {language === "hi"
+                      ? "चयनित स्थिति के अनुसार निर्देशिका में लाइव दिखेगा"
+                      : "Candidate will appear in public directory based on selected status"}
                   </span>
                 </div>
                 <select
@@ -1228,9 +1240,9 @@ export function AdminDashboardClient({
                   defaultValue={editingProfile.status}
                   className="h-9 px-3 rounded-lg border border-[#e7e5e4] font-semibold text-xs text-[#1c1917] bg-white cursor-pointer"
                 >
-                  <option value="pending">⏳ समीक्षाधीन (Pending)</option>
-                  <option value="approved">✅ स्वीकृत / प्रकाशित (Approved)</option>
-                  <option value="rejected">❌ अस्वीकृत (Rejected)</option>
+                  <option value="pending">⏳ {language === "hi" ? "समीक्षाधीन (Pending)" : "Pending Verification"}</option>
+                  <option value="approved">✅ {language === "hi" ? "स्वीकृत / प्रकाशित (Approved)" : "Approved & Published"}</option>
+                  <option value="rejected">❌ {language === "hi" ? "अस्वीकृत (Rejected)" : "Rejected"}</option>
                 </select>
               </div>
 

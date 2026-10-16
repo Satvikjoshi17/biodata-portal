@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminLoginForm } from "@/components/AdminLoginForm";
 
 export const metadata = {
-  title: "Admin Login | Samaj Biodata Portal",
+  title: "Admin Login | Paliwal Brahman Samaj",
 };
 
 export default async function AdminLoginPage() {

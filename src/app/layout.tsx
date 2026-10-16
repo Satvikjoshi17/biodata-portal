@@ -12,10 +12,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Samaj Biodata Portal",
-    default: "Samaj Biodata Portal & Verification Hub",
+    template: "%s | Paliwal Brahman Samaj",
+    default: "Paliwal Brahman Samaj Biodata Portal & Verification Hub",
   },
-  description: "Official community biodata registry for verified profiles, native village lineage, and shareable QR biodata cards.",
+  description: "Official Paliwal Brahman Samaj biodata registry for verified profiles, native village lineage, and shareable QR biodata cards.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
 };
 

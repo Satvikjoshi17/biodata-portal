@@ -93,13 +93,13 @@ export default function HomeClient({ initialProfiles, ads = [] }: HomeClientProp
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-[#e7e5e4]">
             <div>
               <h3 className="font-serif-heading text-base sm:text-lg font-bold text-[#1c1917] flex items-center gap-2">
-                <span>📜 समाज पत्रिका एवं मुख्य पोस्टर</span>
+                <span>{t.home.communityFlyersTitle}</span>
                 <span className="text-[10px] font-mono-tag bg-[#faf8f5] border border-[#e7e5e4] text-[#c2410c] px-2 py-0.5 rounded-full font-semibold">
-                  COMMUNITY FLYERS
+                  {t.home.communityNoticeTag}
                 </span>
               </h3>
               <p className="text-xs text-[#78716c]">
-                समाज सम्मेलन, मांगलिक आयोजन व प्रमुख प्रतिष्ठानों के वर्टिकल पोस्टर (क्लिक करके पूरा देखें)
+                {t.home.communityFlyersSubtitle}
               </p>
             </div>
           </div>

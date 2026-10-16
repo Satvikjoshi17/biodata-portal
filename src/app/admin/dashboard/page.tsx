@@ -3,7 +3,7 @@ import { getAllProfilesForAdmin, getAllAdsForAdmin } from "@/lib/actions";
 import { AdminDashboardClient } from "@/components/AdminDashboardClient";
 
 export const metadata = {
-  title: "Admin Dashboard | Samaj Biodata Portal",
+  title: "Admin Dashboard | Paliwal Brahman Samaj",
 };
 
 export default async function AdminDashboardPage() {

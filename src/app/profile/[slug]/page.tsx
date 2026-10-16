@@ -16,11 +16,11 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
   if (!profile) {
     return {
-      title: "Profile Not Found | Samaj Biodata Portal",
+      title: "Profile Not Found | Paliwal Brahman Samaj",
     };
   }
 
-  const title = `${profile.fullName} - Samaj Biodata`;
+  const title = `${profile.fullName} - Paliwal Brahman Samaj Biodata`;
   const description = `Native Gaon: ${profile.gaon} | Age: ${profile.age} | ${
     profile.occupation || "Verified Samaj Member"
   }. Click to view complete verified biodata and QR code.`;

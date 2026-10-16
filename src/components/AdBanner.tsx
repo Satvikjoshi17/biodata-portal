@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { ExternalLink, Megaphone, Sparkles, Maximize2, X, PhoneCall } from "lucide-react";
 import type { Advertisement, AdPlacement } from "@/lib/schema";
+import { useLanguage } from "@/lib/LanguageContext";
+import { formatExternalUrl } from "@/lib/utils";
 
 interface AdBannerProps {
   placement: AdPlacement;
@@ -11,6 +13,7 @@ interface AdBannerProps {
 }
 
 export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
+  const { t } = useLanguage();
   const [lightboxAd, setLightboxAd] = useState<Advertisement | null>(null);
 
   const matchingAds = ads.filter((a) => a.placement === placement && a.active === "true");
@@ -23,7 +26,8 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
   const handleLinkClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (ad.linkUrl) {
-      window.open(ad.linkUrl, "_blank", "noopener,noreferrer");
+      const targetUrl = formatExternalUrl(ad.linkUrl);
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -48,7 +52,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
             className="absolute -top-11 right-0 sm:right-0 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
             aria-label="Close Preview"
           >
-            <span>बंद करें</span>
+            <span>{t.ads.close}</span>
             <X className="w-4 h-4" />
           </button>
 
@@ -66,7 +70,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
           <div className="w-full mt-3 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-4 py-2.5 text-white">
             <div className="min-w-0 text-center sm:text-left">
               <span className="text-[10px] text-amber-300 font-mono-tag uppercase tracking-wider block font-semibold">
-                समुदाय विज्ञापन एवं पोस्टर • FULL POSTER PREVIEW
+                {t.ads.fullPosterPreview}
               </span>
               <h3 className="font-serif-heading text-sm sm:text-base font-bold truncate max-w-xl">
                 {lightboxAd.title}
@@ -77,11 +81,14 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
               {lightboxAd.linkUrl && (
                 <button
                   type="button"
-                  onClick={() => window.open(lightboxAd.linkUrl!, "_blank", "noopener,noreferrer")}
+                  onClick={() => {
+                    const targetUrl = formatExternalUrl(lightboxAd.linkUrl);
+                    window.open(targetUrl, "_blank", "noopener,noreferrer");
+                  }}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#c2410c] hover:bg-[#ea580c] text-white text-xs font-semibold shadow-md transition cursor-pointer"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />
-                  <span>संपर्क करें / विजिट करें</span>
+                  <span>{t.ads.contactOrVisit}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -90,7 +97,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                 onClick={() => setLightboxAd(null)}
                 className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-medium transition cursor-pointer"
               >
-                बंद करें
+                {t.ads.close}
               </button>
             </div>
           </div>
@@ -134,17 +141,17 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                   setLightboxAd(ad);
                 }}
                 className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-md transition text-[10px] flex items-center gap-1 cursor-pointer"
-                title="पूरा पोस्टर देखें (View Full Poster)"
+                title={t.ads.viewFullPoster}
               >
                 <Maximize2 className="w-3 h-3" />
-                <span className="hidden sm:inline">पूरा देखें</span>
+                <span className="hidden sm:inline">{t.ads.viewFullPoster}</span>
               </button>
             </div>
 
             {/* Badges & Title Bar */}
             <div className="absolute top-2 right-2 z-20 bg-black/75 backdrop-blur-xs text-white text-[9px] font-semibold px-2 py-0.5 rounded font-mono-tag flex items-center gap-1 shadow-xs pointer-events-none">
               <Megaphone className="w-2.5 h-2.5 text-[#c2410c]" />
-              <span>प्रायोजित • SPONSORED</span>
+              <span>{t.ads.sponsored}</span>
             </div>
 
             <div className="absolute bottom-0 inset-x-0 z-20 bg-gradient-to-t from-black/85 via-black/50 to-transparent p-2.5 sm:p-3 text-white flex items-center justify-between gap-2">
@@ -160,7 +167,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                   onClick={handleLinkClick}
                   className="hidden xs:inline-flex items-center gap-1 text-[11px] font-medium bg-[#c2410c] hover:bg-[#ea580c] px-2.5 py-1 rounded shadow-xs flex-shrink-0 cursor-pointer transition"
                 >
-                  <span>विजिट करें</span>
+                  <span>{t.ads.visitPartner}</span>
                   <ExternalLink className="w-3 h-3" />
                 </button>
               )}
@@ -199,7 +206,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
               />
               <div className="absolute top-3 left-3 z-20 bg-white/95 backdrop-blur-xs text-[#c2410c] text-[10px] font-bold px-2.5 py-1 rounded-md border border-[#e7e5e4] shadow-xs flex items-center gap-1 font-mono-tag">
                 <Sparkles className="w-3 h-3 text-[#c2410c]" />
-                <span>COMMUNITY PARTNER • समाज सहयोगी</span>
+                <span>{t.ads.communityPartner}</span>
               </div>
 
               <button
@@ -211,14 +218,14 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                 className="absolute bottom-3 right-3 z-20 bg-black/70 hover:bg-black/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-md backdrop-blur-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer"
               >
                 <Maximize2 className="w-3 h-3" />
-                <span>पूरा पोस्टर देखें (View Full)</span>
+                <span>{t.ads.viewFullPoster}</span>
               </button>
             </div>
 
             <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white">
               <div className="min-w-0">
                 <span className="text-[10px] font-mono-tag uppercase tracking-wider text-[#78716c] block">
-                  Featured Sponsor
+                  {t.ads.featuredSponsor}
                 </span>
                 <h3 className="font-serif-heading text-base sm:text-lg font-bold text-[#1c1917] truncate break-words">
                   {ad.title}
@@ -232,7 +239,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 px-3.5 py-2 rounded-lg border border-[#e7e5e4] hover:bg-[#faf8f5] text-[#1c1917] text-xs font-semibold transition cursor-pointer"
                 >
                   <Maximize2 className="w-3.5 h-3.5 text-[#78716c]" />
-                  <span>पोस्टर देखें</span>
+                  <span>{t.ads.viewFullPoster}</span>
                 </button>
                 {isClickable && (
                   <button
@@ -240,7 +247,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                     onClick={handleLinkClick}
                     className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#1c1917] hover:bg-[#c2410c] text-white text-xs font-semibold transition flex-shrink-0 cursor-pointer shadow-xs"
                   >
-                    <span>संपर्क / विवरण</span>
+                    <span>{t.ads.viewDetails}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -263,10 +270,10 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
             <div className="px-4 py-2.5 bg-gradient-to-r from-[#faf8f5] via-amber-50 to-[#faf8f5] border-b border-[#e7e5e4] flex items-center justify-between">
               <span className="text-[11px] font-bold text-[#c2410c] font-mono-tag flex items-center gap-1.5">
                 <Megaphone className="w-3.5 h-3.5 text-[#c2410c]" />
-                <span>सामुदायिक पोस्टर • COMMUNITY FLYER</span>
+                <span>{t.ads.communityFlyer}</span>
               </span>
               <span className="text-[9px] bg-white px-2 py-0.5 rounded-full text-[#78716c] border border-[#e7e5e4] font-mono-tag">
-                वर्टिकल लेआउट
+                {t.ads.verticalLayout}
               </span>
             </div>
 
@@ -296,7 +303,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
               <div className="absolute inset-0 z-20 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none">
                 <span className="bg-black/75 backdrop-blur-xs text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
                   <Maximize2 className="w-3.5 h-3.5 text-amber-300" />
-                  <span>क्लिक करके पूरा पोस्टर देखें</span>
+                  <span>{t.ads.clickToZoomHint}</span>
                 </span>
               </div>
             </div>
@@ -305,7 +312,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
             <div className="p-4 bg-white flex flex-col justify-between flex-1 space-y-3">
               <div>
                 <span className="text-[10px] font-mono-tag uppercase tracking-wider text-[#78716c] block">
-                  Patron / Sponsor Notice
+                  {t.ads.patronNotice}
                 </span>
                 <h3 className="font-serif-heading text-sm sm:text-base font-bold text-[#1c1917] line-clamp-2 mt-0.5">
                   {ad.title}
@@ -319,7 +326,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                   className="w-full min-h-[38px] px-2 py-1.5 rounded-lg border border-[#e7e5e4] hover:bg-[#faf8f5] text-[#1c1917] text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   <Maximize2 className="w-3.5 h-3.5 text-[#78716c]" />
-                  <span>पूरा देखें</span>
+                  <span>{t.ads.viewFullPoster}</span>
                 </button>
 
                 {isClickable ? (
@@ -328,7 +335,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                     onClick={handleLinkClick}
                     className="w-full min-h-[38px] px-2 py-1.5 rounded-lg bg-[#c2410c] hover:bg-[#9a3412] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs"
                   >
-                    <span>संपर्क करें</span>
+                    <span>{t.ads.contactOrVisit}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                 ) : (
@@ -337,7 +344,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                     onClick={() => setLightboxAd(ad)}
                     className="w-full min-h-[38px] px-2 py-1.5 rounded-lg bg-[#1c1917] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
-                    <span>ज़ूम करें</span>
+                    <span>{t.ads.zoomPoster}</span>
                   </button>
                 )}
               </div>
@@ -357,10 +364,10 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
           <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[#f5f5f4] gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#78716c] font-mono-tag flex items-center gap-1">
               <Megaphone className="w-3 h-3 text-[#c2410c]" />
-              <span>COMMUNITY SPONSOR</span>
+              <span>{t.ads.communitySponsor}</span>
             </span>
             <span className="text-[9px] bg-[#faf8f5] px-1.5 py-0.5 rounded text-[#78716c] border border-[#e7e5e4] font-mono-tag">
-              विज्ञापन
+              {t.ads.advertisement}
             </span>
           </div>
 
@@ -394,7 +401,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                 className="absolute bottom-2 right-2 z-20 bg-black/70 hover:bg-black/90 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-xs flex items-center gap-1 cursor-pointer"
               >
                 <Maximize2 className="w-3 h-3" />
-                <span>पूरा देखें</span>
+                <span>{t.ads.viewFullPoster}</span>
               </button>
             </div>
 
@@ -412,7 +419,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                 className="w-full min-h-[38px] px-2 py-1.5 rounded-lg border border-[#e7e5e4] hover:bg-[#faf8f5] text-[#1c1917] text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer"
               >
                 <Maximize2 className="w-3 h-3 text-[#78716c]" />
-                <span>ज़ूम करें</span>
+                <span>{t.ads.zoomPoster}</span>
               </button>
 
               {isClickable && (
@@ -421,7 +428,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                   onClick={handleLinkClick}
                   className="w-full min-h-[38px] px-2 py-1.5 rounded-lg bg-[#c2410c] hover:bg-[#9a3412] text-white text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer shadow-xs"
                 >
-                  <span>विजिट करें</span>
+                  <span>{t.ads.visitPartner}</span>
                   <ExternalLink className="w-3 h-3" />
                 </button>
               )}
@@ -461,7 +468,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
             />
             <div className="absolute top-3 left-3 z-20 bg-[#c2410c] text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-xs flex items-center gap-1 font-mono-tag">
               <Megaphone className="w-3 h-3 text-white" />
-              <span>SPONSORED • विज्ञापन</span>
+              <span>{t.ads.sponsored}</span>
             </div>
 
             <button
@@ -473,14 +480,14 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
               className="absolute bottom-2 right-2 z-20 bg-black/70 hover:bg-black/90 text-white text-[10px] font-medium px-2 py-0.5 rounded backdrop-blur-xs flex items-center gap-1 cursor-pointer"
             >
               <Maximize2 className="w-3 h-3" />
-              <span>पूरा देखें</span>
+              <span>{t.ads.viewFullPoster}</span>
             </button>
           </div>
 
           <div className="p-4 sm:p-4.5 flex-1 flex flex-col justify-between space-y-3">
             <div>
               <span className="text-[10px] font-mono-tag uppercase tracking-wider text-[#c2410c] font-semibold">
-                Samaj Business Partner
+                {t.ads.businessPartner}
               </span>
               <h3
                 onClick={() => setLightboxAd(ad)}
@@ -497,7 +504,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                 className="w-full min-h-[38px] inline-flex items-center justify-center gap-1.5 px-2 rounded-lg border border-[#e7e5e4] hover:bg-[#faf8f5] text-[#1c1917] text-xs font-semibold transition cursor-pointer"
               >
                 <Maximize2 className="w-3.5 h-3.5 text-[#78716c]" />
-                <span>पोस्टर देखें</span>
+                <span>{t.ads.viewFullPoster}</span>
               </button>
 
               {isClickable ? (
@@ -506,7 +513,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                   onClick={handleLinkClick}
                   className="w-full min-h-[38px] inline-flex items-center justify-center gap-1.5 px-2 rounded-lg bg-[#1c1917] group-hover:bg-[#c2410c] text-white text-xs font-semibold transition shadow-xs cursor-pointer"
                 >
-                  <span>विजिट करें</span>
+                  <span>{t.ads.visitPartner}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </button>
               ) : (
@@ -515,7 +522,7 @@ export function AdBanner({ placement, ads, className = "" }: AdBannerProps) {
                   onClick={() => setLightboxAd(ad)}
                   className="w-full min-h-[38px] inline-flex items-center justify-center gap-1.5 px-2 rounded-lg bg-[#c2410c] text-white text-xs font-semibold transition shadow-xs cursor-pointer"
                 >
-                  <span>ज़ूम करें</span>
+                  <span>{t.ads.zoomPoster}</span>
                 </button>
               )}
             </div>

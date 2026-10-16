@@ -47,3 +47,19 @@ export function formatDateTime(date: Date | string | number | null | undefined):
     hour12: true,
   });
 }
+
+export function formatExternalUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("tel:") ||
+    trimmed.startsWith("mailto:")
+  ) {
+    return trimmed;
+  }
+  // If protocol was omitted (e.g. "google.com" or "www.paliwaljewellers.com"), prepend https://
+  return `https://${trimmed}`;
+}
