@@ -35,21 +35,21 @@ export function AdminLoginForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 bg-white rounded-2xl border border-[#e7e5e4] p-8 shadow-xs">
+    <div className="max-w-md w-full mx-auto my-6 sm:my-12 bg-white rounded-2xl border border-[#e7e5e4] p-5 sm:p-8 shadow-xs">
       <div className="text-center mb-6">
         <div className="w-12 h-12 bg-[#faf8f5] text-[#c2410c] border border-[#e7e5e4] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-xs">
           <Lock className="w-6 h-6" />
         </div>
-        <h1 className="font-serif-heading text-xl font-bold text-[#1c1917]">
+        <h1 className="font-serif-heading text-lg sm:text-xl font-bold text-[#1c1917] break-words">
           {t.admin.loginTitle}
         </h1>
-        <p className="text-xs text-[#78716c] mt-1 leading-relaxed">
+        <p className="text-xs text-[#78716c] mt-1.5 leading-relaxed break-words">
           {t.admin.loginSubtitle}
         </p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs text-center font-medium">
+        <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs text-center font-medium break-words">
           {error}
         </div>
       )}
@@ -72,7 +72,7 @@ export function AdminLoginForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full min-h-[44px] py-2.5 rounded-xl bg-[#c2410c] hover:bg-[#9a3412] text-white font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 shadow-xs"
+          className="w-full min-h-[46px] py-2.5 rounded-xl bg-[#c2410c] hover:bg-[#9a3412] text-white font-semibold text-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 shadow-xs"
         >
           {isPending ? (
             <>
@@ -80,7 +80,7 @@ export function AdminLoginForm() {
             </>
           ) : (
             <>
-              {t.admin.signInBtn} <ArrowRight className="w-4 h-4" />
+              <span>{t.admin.signInBtn}</span> <ArrowRight className="w-4 h-4 flex-shrink-0" />
             </>
           )}
         </button>

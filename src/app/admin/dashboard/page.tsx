@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
   }
 
   return (
-    <div className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="py-6 sm:py-12 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <AdminDashboardClient initialProfiles={profiles} />
     </div>
   );

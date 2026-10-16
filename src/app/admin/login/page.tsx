@@ -14,7 +14,7 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <div className="py-12 px-4 sm:px-6 lg:px-8">
+    <div className="py-6 sm:py-12 px-3 sm:px-6 lg:px-8">
       <AdminLoginForm />
     </div>
   );

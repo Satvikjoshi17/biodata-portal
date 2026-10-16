@@ -62,12 +62,12 @@ export function ShareProfileActions({ slug, fullName }: ShareProfileActionsProps
   };
 
   return (
-    <div className="bg-white rounded-xl border border-[#e7e5e4] p-6 shadow-xs flex flex-col items-center text-center">
-      <div className="w-full flex items-center justify-between pb-3 mb-4 border-b border-[#f5f5f4]">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-[#78716c] font-mono-tag">
+    <div className="bg-white rounded-xl border border-[#e7e5e4] p-4.5 sm:p-6 shadow-xs flex flex-col items-center text-center">
+      <div className="w-full flex items-center justify-between pb-3 mb-4 border-b border-[#f5f5f4] gap-2">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[#78716c] font-mono-tag truncate">
           {t.profile.qrTitle}
         </span>
-        <span className="text-[10px] bg-[#faf8f5] px-2 py-0.5 rounded text-[#57534e] border border-[#e7e5e4] font-mono-tag">
+        <span className="text-[10px] bg-[#faf8f5] px-2 py-0.5 rounded text-[#57534e] border border-[#e7e5e4] font-mono-tag flex-shrink-0">
           {t.profile.directLink}
         </span>
       </div>
@@ -85,7 +85,7 @@ export function ShareProfileActions({ slug, fullName }: ShareProfileActionsProps
         />
       </div>
 
-      <p className="text-xs text-[#78716c] mb-6 leading-relaxed max-w-xs">
+      <p className="text-xs text-[#78716c] mb-5 sm:mb-6 leading-relaxed max-w-xs break-words">
         {t.profile.qrSubtitle}
       </p>
 
@@ -93,30 +93,34 @@ export function ShareProfileActions({ slug, fullName }: ShareProfileActionsProps
       <div className="w-full space-y-2">
         <button
           onClick={handleWhatsAppShare}
-          className="w-full h-10 px-4 rounded-lg bg-[#166534] hover:bg-[#14532d] text-white text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
+          className="w-full min-h-[42px] px-4 rounded-lg bg-[#166534] hover:bg-[#14532d] text-white text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
         >
-          <Share2 className="w-3.5 h-3.5" /> {t.profile.shareWhatsApp}
+          <Share2 className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>{t.profile.shareWhatsApp}</span>
         </button>
 
         <button
           onClick={handleDownloadQr}
-          className="w-full h-10 px-4 rounded-lg bg-[#1c1917] hover:bg-[#292524] text-white text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
+          className="w-full min-h-[42px] px-4 rounded-lg bg-[#1c1917] hover:bg-[#292524] text-white text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
         >
-          <Download className="w-3.5 h-3.5" /> {t.profile.downloadQr}
+          <Download className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>{t.profile.downloadQr}</span>
         </button>
 
         <button
           onClick={handleCopyLink}
-          className="w-full h-10 px-4 rounded-lg border border-[#d6d3d1] hover:bg-[#faf8f5] text-[#1c1917] text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
+          className="w-full min-h-[42px] px-4 rounded-lg border border-[#d6d3d1] hover:bg-[#faf8f5] text-[#1c1917] text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer"
         >
-          <Copy className="w-3.5 h-3.5 text-[#78716c]" /> {t.profile.copyLink}
+          <Copy className="w-3.5 h-3.5 text-[#78716c] flex-shrink-0" />
+          <span>{t.profile.copyLink}</span>
         </button>
 
         <button
           onClick={handlePrint}
-          className="w-full h-9 px-4 rounded-lg text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] text-xs font-medium flex items-center justify-center gap-1.5 transition cursor-pointer"
+          className="w-full min-h-[38px] px-4 rounded-lg text-[#78716c] hover:text-[#1c1917] hover:bg-[#f5f5f4] text-xs font-medium flex items-center justify-center gap-1.5 transition cursor-pointer"
         >
-          <Printer className="w-3.5 h-3.5" /> {t.profile.printBiodata}
+          <Printer className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>{t.profile.printBiodata}</span>
         </button>
       </div>
     </div>
